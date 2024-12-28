@@ -1,4 +1,4 @@
-from flask import Blueprint, session, redirect, request
+from flask import Blueprint, session, redirect, request, render_template
 from modules.db import dbutils
 sessions = dbutils.sessions
 users = dbutils.users
@@ -8,7 +8,7 @@ auth = Blueprint("auth", __name__)
 
 @auth.route("/")
 def auth_index():
-    return "Login page"
+    return render_template("auth.html")
 
 @auth.before_app_request
 def auth_beforerequest():

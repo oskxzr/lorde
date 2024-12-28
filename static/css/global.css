@@ -14,15 +14,22 @@ html {
 body {
     min-height: 100vh;
     font-size: 16px;
-    background: rgb(37,33,42);
-    background: radial-gradient(circle, rgba(37,33,42,1) 0%, rgba(33,28,40,1) 100%);
+    background: rgb(0, 0, 0);
+    /* background: radial-gradient(circle, rgba(37,33,42,1) 0%, rgba(33,28,40,1) 100%); */
     margin: 0;
     padding: 0;
+    color: white
 }
 
 a {
     color: inherit;
     text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: rgb(39, 0, 211);
+    font-family: Fulgora;
+    font-size: 2.5em;
 }
 
 ul, ol {
@@ -55,6 +62,11 @@ input, button, select, textarea {
     }
 }
 
+@font-face {
+    font-family: Fulgora;
+    src: url('/static/fonts/Fulgora-Negra.woff2');
+}
+
 :root {
     --primary-color: #3498db;
     --secondary-color: #2ecc71;
@@ -71,15 +83,75 @@ button {
     width: 50vw;
     height: 50vw;
     border-radius: 50%;
-    filter: blur(400px);
+    filter: blur(300px);
     position: fixed;
-    background-color: rgba(255,255,255, .2);
+    background-color: rgba(255,255,255, .3);
     opacity: 1;
     transition: opacity 1s;
+    z-index: -1;
 }
 
 #aura.inactive {
     opacity: 0;
     transition: opacity 5s;
     /* , top .8s cubic-bezier(0.33, 1, 0.68, 1), left .8s cubic-bezier(0.33, 1, 0.68, 1);  */
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+}
+
+.container * {
+    z-index: 2;
+    position: relative;
+}
+
+.container::after{
+    border-radius: 15px;
+    content:"";
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 2px solid rgb(21, 21, 21);
+    background: rgb(38,32,46);
+    background: linear-gradient(0deg, rgb(17, 17, 17) 0%, rgb(29, 29, 29) 100%);
+    box-shadow: rgba(32, 10, 64, 0.35) 0px -2px 6px 0px inset;
+    z-index: 1;
+}
+
+.container::before {
+    content: "";
+    background-color: rgba(255,255,255);
+    filter: blur(300px);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.fadein {
+    animation-name: fadein;
+    animation-duration: 1s;
+    animation-delay: var(--fade-in-delay);
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0, 0.62, 0.17, 1);
+    opacity: 0;
+}
+
+@keyframes fadein {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
 }
