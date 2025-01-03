@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +9,36 @@
     <!-- JS -->
     <script src="{{ url_for('static', filename='modules/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/aura.js') }}"></script>
-    
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
+
 <body>
     <div id="aura" class="inactive"></div>
-    
+
     <div class="login container fadein" style="--fade-in-delay: .25s">
-        <h1 class="fadein" style="--fade-in-delay: .35s">Login</h1>
-        
+        <h1 class="fadein" style="--fade-in-delay: .35s;">Login</h1>
+        <form id="login-form">
+            <div class="form-group fadein" style="--fade-in-delay: .45s;">
+                <label for="login-Username">Username</label>
+                <div class="input-wrapper">
+                    <input id="login-Username" name="username">
+                </div>
+            </div>
+
+            <div class="form-group fadein" style="--fade-in-delay: .55s;">
+                <label for="login-password">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="login-password" name="password">
+                </div>
+            </div>
+
+            <button id="login-confirm" class=" fadein" style="--fade-in-delay: .65s;">Log In</button>
+        </form>
     </div>
 </body>
+
 </html>

@@ -2,8 +2,12 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: AHGR;
     line-height: 1.5;
+}
+
+:root{
+    --secondary-color: #1E6D49;
 }
 
 html {
@@ -21,23 +25,31 @@ body {
     color: white
 }
 
+
+body.nooverflow {
+    overflow: hidden;
+}
+
 a {
     color: inherit;
     text-decoration: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: rgb(39, 0, 211);
-    font-family: Fulgora;
+    color: white;
+    font-family: BuzzBlack;
     font-size: 2.5em;
+    background-color: var(--color);
+    text-transform: uppercase;
 }
+
 
 ul, ol {
     list-style: none;
     padding: 0;
 }
 
-img {
+.img {
     background-image: var(--background-image);
     background-position: center;
     background-size: cover;
@@ -63,19 +75,18 @@ input, button, select, textarea {
 }
 
 @font-face {
-    font-family: Fulgora;
-    src: url('/static/fonts/Fulgora-Negra.woff2');
+    font-family: BuzzBlack;
+    src: url('/static/fonts/BuzzBlack.woff');
 }
 
-:root {
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-    --font-size: 16px;
+@font-face {
+    font-family: AHGB;
+    src: url('/static/fonts/AlteHaasGroteskBold.ttf');
 }
 
-button {
-    background-color: var(--secondary-color);
-    color: white;
+@font-face {
+    font-family: AHGR;
+    src: url('/static/fonts/AlteHaasGroteskRegular.ttf');
 }
 
 /* Aura */
@@ -103,12 +114,20 @@ button {
     padding: 20px;
 }
 
+.container.noglow {
+    border-radius: 15px;
+    background: rgb(38,32,46);
+    background: linear-gradient(0deg, rgb(17, 17, 17) 0%, rgb(29, 29, 29) 100%);
+    box-shadow: rgba(32, 10, 64, 0.35) 0px -2px 6px 0px inset;
+    z-index: 3;
+}
+
 .container * {
-    z-index: 2;
+    z-index: 4;
     position: relative;
 }
 
-.container::after{
+.container:not(.noglow)::after{
     border-radius: 15px;
     content:"";
     height: 100%;
@@ -120,10 +139,10 @@ button {
     background: rgb(38,32,46);
     background: linear-gradient(0deg, rgb(17, 17, 17) 0%, rgb(29, 29, 29) 100%);
     box-shadow: rgba(32, 10, 64, 0.35) 0px -2px 6px 0px inset;
-    z-index: 1;
+    z-index: 3;
 }
 
-.container::before {
+.container:not(.noglow)::before {
     content: "";
     background-color: rgba(255,255,255);
     filter: blur(300px);

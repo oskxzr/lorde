@@ -1,0 +1,10 @@
+/* Set the secondary color for Plyr */
+:root {
+    --plyr-color-secondary: var(--secondary-color) !important;
+    --plyr-color-main: var(--secondary-color) !important; /* Change to your desired color */
+}
+
+/* Optionally, you can also adjust other elements using variables */
+.plyr__control {
+    font-family: 'AHGR'; /* Change to your desired font */
+}

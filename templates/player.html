@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/player.css') }}">
+    <title>Media Player</title>
+</head>
+
+<body>
+    <video id="player" controls autoplay>
+        {% for track in tracks %}
+        <source src="{{ track }}" type="video/mp4">
+        {% endfor %}
+    </video>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script>
+        $(document).ready(function () {
+            const player = new Plyr('#player', {
+                quality: {
+                    default: 0,
+                    options: Array.from(Array({{ tracks| length }})).map((_, i) => i)
+                }
+            });
+
+        let setTimestamp = false
+        player.on('canplay', () => {
+            {% if timestamp %}
+            if (!setTimestamp) {
+                player.currentTime = {{ timestamp | float }};
+                setTimestamp = true
+            }
+            {% endif %}
+        });
+
+        // Send watch history updates every 5 seconds while playing
+        let lastUpdate = 0;
+        const updateInterval = 5000; // 5 seconds
+
+        player.on('timeupdate', () => {
+            const now = Date.now();
+            if (!player.loading && now - lastUpdate >= updateInterval) {
+                lastUpdate = now;
+
+                $.ajax({
+                    url: '/watchhistory',
+                    method: 'POST',
+                    data: {
+                        url: window.location.pathname,
+                        timestamp: player.currentTime
+                    }
+                });
+            }
+        });
+        });
+    </script>
+</body>
+
+</html>

@@ -6,5 +6,54 @@ body {
 
 .container {
     width: min(95vw, 500px);
-    height: min(50vh, 300px)
+    /* height: min(50vh, 300px) */
+}
+
+.input-wrapper {
+    padding: 10px;
+    border-radius: 10px;
+    padding: 7px;
+    background: #fbfbfb;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.input-wrapper.active {
+    border: 2px solid #8A6D59;
+}
+
+input {
+    all: unset;
+    width: 100%;
+    color: black
+}
+
+label {
+    font-family: AHGB;
+    font-size: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+button {
+    all: unset;
+    padding: 10px;
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    font-family: AHGB;
+    width: auto;
+    display: inline-block;
+    align-self: flex-start;
+    margin-top: 5px;
 }
