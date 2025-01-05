@@ -1,0 +1,54 @@
+{# macros/title.html #}
+{% macro title_element(data, delay, id, continue_watching=None) %}
+<div class="title-element fadein" style="--fade-in-delay: {{ delay }}s;" id="{{id}}">
+    <div class="img" style="--background-image: url('{{ data['metadata']['poster'] }}')">
+
+        <div class="data-holder">
+    
+        <div class="metadata">
+            {% set quality = data["data"]["qualities"][0] %}
+
+            {% if quality == "2160p" %}
+                <p class="quality high">4k</p>
+            {% else %}
+                <p class="quality">{{quality}}</p>
+            {% endif %}
+    
+            {% if data["metadata"]["type"] == "series" %}
+                <p>{{data["seasons"]|length}} Seasons</p>
+            {% else %}
+                <p>{{ data["metadata"]["time"]["s"] }}</p>
+            {% endif %} 
+        </div>
+
+
+        {% if continue_watching %}
+        
+            <div class="continue-watching">
+                {% if data["metadata"]["type"] == "series" %}
+                {% set season = continue_watching.season[1:] | int %}
+                {% set episode = continue_watching.episode[1:] | int %}
+                <p>{{continue_watching.season}} {{continue_watching.episode}}</p>
+                <p class="remaining">{{(data["seasons"][season|string][episode-1]["time"]["m"] - (continue_watching.timestamp|float/60)) | round(0) | int }}m remaining</p>
+                {% else %}
+                <p></p>
+                <p class="remaining">{{(data["metadata"]["time"]["m"] - (continue_watching.timestamp|float/60)) | round(0) | int }}m remaining</p>
+                {% endif %}
+            </div>
+            <div class="progress-bar">
+
+                {% if data["metadata"]["type"] == "series" %}
+                    {% set season = continue_watching.season[1:] | int %}
+                    {% set episode = continue_watching.episode[1:] | int %}
+                    {% set progress = continue_watching.timestamp|float / (data["seasons"][season|string][episode-1]["time"]["m"]*60) %}
+                {% else %}
+                    {% set progress = continue_watching.timestamp|float / (data["metadata"]["time"]["m"]*60) %}
+                {% endif %}
+
+                <div class="progress" style="width: max({{ progress*100 }}%, 0%)"></div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endmacro %}

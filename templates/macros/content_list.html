@@ -1,0 +1,30 @@
+    {# macros/content_list.html #}
+    {% from "macros/title.html" import title_element %}
+    {% macro content_list(title, titles, title_data, delay_offset, continue_watching) %}
+    {% set delay = namespace(counter=delay_offset) %}
+    <div class="content-list container noglow fadein" style="--fade-in-delay: {{ delay.counter }}s;">
+        {% set delay.counter = delay.counter + 0.15 %}
+        
+        <h1 class="fadein" style="--fade-in-delay: {{ delay }}s;">{{ title }}</h1>
+        {% set delay.counter = delay.counter + 0.15 %}
+        
+        <div class="content-wrapper">
+            {% for title in titles %}
+                {% if title_data[title]['metadata']['backdrop'] %}
+                <img class="preloadimg" src="{{ title_data[title]['metadata']['backdrop'] }}" width="500" height="750">
+                {% endif %}
+                {% if title_data[title]['metadata']['logo'] %}
+                <img class="preloadimg" src="{{ title_data[title]['metadata']['logo'] }}" width="500" height="750">
+                {% endif %}
+
+                {% if continue_watching and title in continue_watching %}
+                {{ title_element(title_data[title], delay.counter, title, continue_watching[title]) }}
+                {% else %}
+                {{ title_element(title_data[title], delay.counter, title) }}
+                {% endif %}
+
+                {% set delay.counter = delay.counter + 0.15 %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endmacro %}
