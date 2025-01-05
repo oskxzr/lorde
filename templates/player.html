@@ -11,42 +11,81 @@
 </head>
 
 <body>
+    {% if next_episode %}
+    <div id="next-episode-popup" class="container">
+        <div class="left clicktoplay">
+            <div class="img" style="--background-image: url('{{next_episode.data.image}}')"></div>
+        </div>
+        <div class="right clicktoplay">
+            <p>Next episode: {{ next_episode.season }} {{ next_episode.episode }}</p>
+            <p class="title">{{ next_episode.data.name }}</p>
+        </div>
+        <div class="bottom">
+            <p>Starting in <span id="countdown">45</span> seconds...</p>
+            <button id="cancel-btn">Back to home page</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <track kind="subtitles" label="English" src="{{ subtitles }}" srclang="en" default>
     <video id="player" controls autoplay>
         {% for track in tracks %}
-        <source src="{{ track }}" type="video/mp4">
+        <source src="{{ track.src }}" type="video/mp4" data-quality="{{ track.quality }}">
         {% endfor %}
+        <track kind="subtitles" label="English" src="{{ subtitles }}" srclang="en" default>
     </video>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script>
         $(document).ready(function () {
+            // Extract quality levels from the video source elements
+            const sources = Array.from(document.querySelectorAll('#player source'));
+            const qualityOptions = sources.map(source => parseInt(source.getAttribute('data-quality'))).filter(Boolean);
+
             const player = new Plyr('#player', {
                 quality: {
-                    default: 0,
-                    options: Array.from(Array({{ tracks| length }})).map((_, i) => i)
+                    default: Math.max(...qualityOptions), // Set the highest quality as default
+                    options: qualityOptions.sort((a, b) => b - a) // Sort from highest to lowest
+                },
+                captions: {
+                    active: true,  // Enable captions by default
+                    language: 'en' // Set the language to match `srclang`
+                },
+                keyboard: {
+                    focused: true, // Enable shortcuts when the player is focused
+                    global: true  // Enable shortcuts globally on the page
                 }
             });
 
-        let setTimestamp = false
-        player.on('canplay', () => {
-            {% if timestamp %}
-            if (!setTimestamp) {
-                player.currentTime = {{ timestamp | float }};
-                setTimestamp = true
+            let setTimestamp = false;
+            player.on('canplay', () => {
+                {% if timestamp %}
+                if (!setTimestamp && player.duration - {{timestamp|float}} > 120) {
+                    player.currentTime = {{ timestamp | float }};
+                setTimestamp = true;    
+                player.play()
             }
-            {% endif %}
+                {% endif %}
+            });
+        player.on('pause', () => {
+            $.ajax({
+                url: '/watchhistory',
+                method: 'POST',
+                data: {
+                    url: window.location.pathname,
+                    timestamp: player.currentTime
+                }
+            });
         });
 
         // Send watch history updates every 5 seconds while playing
         let lastUpdate = 0;
         const updateInterval = 5000; // 5 seconds
-
         player.on('timeupdate', () => {
             const now = Date.now();
             if (!player.loading && now - lastUpdate >= updateInterval) {
                 lastUpdate = now;
-
                 $.ajax({
                     url: '/watchhistory',
                     method: 'POST',
@@ -57,6 +96,71 @@
                 });
             }
         });
+
+        {% if next_episode %}
+const nextEpisodeUrl = "/watch/{{next_episode.title|lower}}/{{next_episode.season|lower}}/{{next_episode.episode|lower}}";
+const popup = $('#next-episode-popup');
+const countdownElement = $('#countdown');
+const cancelButton = $('#cancel-btn');
+let popupDisplayed = false;
+const POPUP_THRESHOLD = 45; // Show popup when 45 seconds remain
+
+// Function to format time remaining (converts seconds to MM:SS)
+function formatTimeRemaining(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Function to handle the next episode transition
+function goToNextEpisode() {
+    window.location.href = nextEpisodeUrl;
+}
+
+// Function to handle popup display and countdown
+function handlePopup(timeRemaining) {
+    if (!popupDisplayed) {
+        popupDisplayed = true;
+        popup.addClass("active");
+    }
+    countdownElement.text(formatTimeRemaining(timeRemaining));
+}
+
+// Main player event listeners
+player.on('timeupdate', () => {
+    const timeRemaining = player.duration - player.currentTime;
+    
+    if (timeRemaining <= POPUP_THRESHOLD) {
+        handlePopup(timeRemaining);
+    }
+    
+    // If video ends naturally, go to next episode
+    if (timeRemaining <= 0) {
+        goToNextEpisode();
+    }
+});
+
+// Reset handler if video is seeked
+player.on('seeked', () => {
+    const timeRemaining = player.duration - player.currentTime;
+    if (timeRemaining > POPUP_THRESHOLD && popupDisplayed) {
+        popupDisplayed = false;
+        popup.removeClass("active");
+    }
+});
+
+// Handle manual skip to next episode
+cancelButton.on('click', () => {
+    window.location.href = '/';
+});
+
+// Handle click to play next episode
+$(".clicktoplay").on("click", goToNextEpisode);
+
+// Handle video end event as a backup
+player.on('ended', goToNextEpisode);
+{% endif %}
+        
         });
     </script>
 </body>
