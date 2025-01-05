@@ -1,6 +1,8 @@
 from flask import Blueprint, session, redirect, request, render_template, jsonify
 from modules.db import dbutils
 import bcrypt
+import time
+from modules.pages.pages import title_data
 sessions = dbutils.sessions
 users = dbutils.users
 user_data = dbutils.user_data
@@ -14,7 +16,13 @@ def add_user(username, password):
 
 @auth.route("/")
 def auth_index():
-    return render_template("auth.html")  
+    redirect = request.args.get("r")
+    if redirect and "/watch" in redirect and len(redirect.split("/")) >= 3:
+        title = redirect.split("/")[2]
+        if title and title in title_data:
+            logo = title_data[title]["metadata"]["logo"]
+            return render_template("auth.html", logo = logo)  
+    return render_template("auth.html")
 
 @auth.route("/logout")
 def auth_logout():
@@ -33,10 +41,9 @@ def auth_login():
         if bcrypt.checkpw(password.encode('utf-8'), encrypted_password):
             session_key = sessions.set({"user_id": user_data["_id"]})
             session["session_key"] = session_key
-            return jsonify(message='Success'), 200
-        else:
-            return jsonify(error='Invalid credentials'), 401
-    return jsonify(error="Could not find your account"), 400
+            return jsonify({"message": 'Success'})
+    time.sleep(1)
+    return jsonify({"error": 'Incorrect username or password.'})
 
 @auth.before_app_request
 def auth_before_request():
