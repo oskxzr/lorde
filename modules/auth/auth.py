@@ -18,7 +18,8 @@ def auth_index():
 
 @auth.route("/logout")
 def auth_logout():
-    del session["session_key"]
+    session.pop("session_key")
+    session.pop("user_data")
     return redirect("/")
 
 @auth.route("/login", methods=['POST'])
@@ -38,33 +39,47 @@ def auth_login():
     return jsonify(error="Could not find your account"), 400
 
 @auth.before_app_request
-def auth_beforerequest():
-    if (not request.path.startswith("/static")):
+def auth_before_request():
+    # Skip auth check for static files
+    if request.path.startswith("/static"):
+        return
 
-        # Get session data
-        current_session = session.get("session_key")
+    # Session data
+    current_session = session.get("session_key")
+    user = None
+    session_data = None
+
+    if current_session:
         session_data = sessions.find(current_session)
         if session_data and "user_id" in session_data:
             user = users.find(session_data["user_id"])
 
-        # Allow requests from auth and the homepage through
-        if (not request.path.startswith("/auth")) and (request.path != "/"):
-            if not session or not session_data:
-                if session:
-                    session.pop("session_key") # Remove the session key from the session object if it is invalid
-                return redirect(f"/auth?r={request.path}")
-            if not user: # If there is no user associated with the user id from the session, e.g if the account was deleted since the session was initialised
-                session.pop("session_key") 
-                return redirect(f"/auth?r={request.path}")
-        # If they're on auth, make sure that they're not logged in
-        elif request.path.startswith("/auth") and "logout" not in request.path and session and session_data and user:
-                return redirect("/")
-            
-        # Request is allowed through, set/init userdata
-        try: #if theyre going to the home page unlogged in or auth
+    # Clear invalid session
+    if not current_session or not session_data or not user:
+        session.clear()
+
+    # Handle authentication for different routes
+    is_auth_route = request.path.startswith("/auth")
+    is_home = request.path == "/"
+    is_logout = "/auth/logout" in request.path
+
+    if not (is_auth_route or is_home):
+        if not (current_session and session_data and user):
+            return redirect(f"/auth?r={request.path}")
+
+    if is_auth_route and not is_logout and user:
+        return redirect("/")
+
+    # Update user data for authenticated requests
+    if user:
+        try:
             ud = user_data.find(user["_id"])
             if not ud:
-                ud = {"_id": user["_id"], "watch_history": {}}
+                ud = {
+                    "_id": user["_id"],
+                    "watch_history": {}
+                }
                 user_data.set(ud)
             session["user_data"] = ud
-        except: pass
+        except Exception:
+            pass
