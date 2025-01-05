@@ -104,8 +104,8 @@ def pages_index():
     #     return render_template("offline.html")
     user_watch_history = {}
     if session.get("user_data"):
-        user_watch_history = watch_history.find(session.get("user_data")["_id"])
-    if user_watch_history != {}:
+        user_watch_history = watch_history.find(session.get("user_data")["_id"]) or {}
+    if user_watch_history != {} and "_id" in user_watch_history:
         del user_watch_history["_id"]
     return render_template("home.html", title_data = title_data, watch_history = user_watch_history, continue_watching = create_continue_watching(user_watch_history), logged_in = session.get("session_key") != None)
     # return render_template("home.html", title_data = title_data)

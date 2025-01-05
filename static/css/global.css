@@ -25,28 +25,7 @@ body {
     padding: 0;
     color: white;
     overflow-x: hidden;
-    overflow-y: scroll;
-    scrollbar-gutter: stable both-edges;
-    /* For Firefox */
-    scrollbar-width: thin;
 }
-  
-/* For Webkit browsers (Chrome, Safari, etc.) */
-body::-webkit-scrollbar {
-    width: 10px;
-}
-
-body::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-body::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 20px;
-    border: 3px solid transparent;
-    background-clip: padding-box;
-}
-
 
 .nooverflow {
     overflow: hidden !important;
