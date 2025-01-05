@@ -1,8 +1,11 @@
 body {
     display: flex;
     justify-content: center;
-    padding: 10vh;
-    align-items: flex-start;
+    padding: 10vh 0;
+    align-items: center;
+    flex-direction: column;
+    gap: 10vh;
+    background: radial-gradient(circle, rgb(69, 69, 69) 20%, rgba(0,0,0,1) 100%);
 }
 
 .container {
@@ -48,11 +51,67 @@ body {
     z-index: 2;
 }
 
+.title-element:hover .metadata,
+.title-element:hover .continue-watching {
+    opacity: 1;
+}
+
+.title-element:hover .data-holder {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.title-element .progress-bar {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    height: 10px;
+}
+
+.title-element .continue-watching {
+    width: 100%;
+    position: absolute;
+    bottom: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 10px;
+}
+
+.title-element .data-holder {
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color .25s;
+    border-radius: 10px;
+}
+
+.title-element .data-holder .remaining {
+    text-align: right;
+    width: 50%
+}
+
+.title-element .metadata,
+.title-element .continue-watching {
+    opacity: 0;
+    transition: opacity .25s;
+}
+
+.title-element .continue-watching * {
+    width: 35%;
+}
+
+.title-element .progress-bar .progress {
+    height: 10px;
+    background-color: var(--secondary-color);
+    border-radius: 0 0 0 10px;
+    max-width: calc(100% - 10px) !important;
+}
+
 .title-element .metadata {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+    padding: 10px;
 }
 
 .content-wrapper {
@@ -130,7 +189,7 @@ body {
     flex-direction: row;
     gap: 10px;
     align-items: last baseline;
-    margin-top: calc(calc(min(70vw, 80vh)/1.77) - 100px)
+    margin-top: calc(calc(min(600px, 95vw)/1.77) - 100px)
 }
 
 .content-overlay .organiser .left .title-wrapper img {
@@ -139,7 +198,6 @@ body {
     max-width: 60%;
     max-height: 120px;
     object-fit: contain;
-    user-drag: none;
     pointer-events: none;
 }
 
@@ -226,8 +284,9 @@ body {
 }
 
 .content-overlay .episode .number{
-    font-size: 25px;
-    font-weight: lighter;
+    /* font-size: 25px; */
+    /* font-weight: lighter; */
+    font-family: AHGB;
 }
 
 .content-overlay .episode .img {
@@ -246,6 +305,7 @@ body {
     background-color: rgba(0, 0, 0, .4);
     opacity: 0;
     transition: .3s opacity;
+    border-radius: 10px;
 }
 
 .content-overlay .episode:hover .img .play-wrapper {
@@ -294,6 +354,7 @@ a.play-main {
     font-family: AHGB;
     font-weight: bolder;
     font-size: 25px;
+    margin-bottom: 25px;
 }
 
 a.play-main .play {

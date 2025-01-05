@@ -8,3 +8,66 @@
 .plyr__control {
     font-family: 'AHGR'; /* Change to your desired font */
 }
+
+
+#player {
+    width: 100vw;
+    height: 100vh;
+    z-index: 5;
+}
+
+#next-episode-popup {
+    position: fixed;
+    opacity: 0;
+    transform: translateY(40px);
+    z-index: 0;
+    width: 500px;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    flex-direction: row;
+    bottom: 5vw;
+    left: 2.5vw;
+    transition: opacity .5s, transform .5s;
+}
+
+#next-episode-popup.active {
+    opacity: 1;
+    transform: translateY(0px);
+    z-index: 6;
+}
+
+#next-episode-popup .left,
+#next-episode-popup .right {
+    cursor: pointer;
+    width: 47.5%;
+}
+
+#next-episode-popup .left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#next-episode-popup .right .title {
+    font-family: BuzzBlack;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+#next-episode-popup .left .img {
+    aspect-ratio: 1.83333333333;
+    width: 90%;
+    height: auto;
+    border-radius: 10px;
+}
+
+#next-episode-popup .bottom {
+    width: 100%;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
