@@ -1,5 +1,4 @@
 function showContentOverlay(titleData){
-    console.log(titleData)
     const contentOverlay = $("#content-overlay")
     contentOverlay.empty()
     
@@ -50,31 +49,40 @@ function showContentOverlay(titleData){
         for (let episode of episodes) {
             const description = episode.description.length > 200 ? episode.description.substring(0, 200) + '...' : episode.description;
             const episodeNumber = episode.episode_number
-            
+            const seasonString = String(season).padStart(2, '0')
+            const episodeString = String(episode.episode_number).padStart(2, '0')
             function onClick(){
-                window.location.href = `/watch/${titleData.data._id}/s${String(season).padStart(2, '0')}/e${String(episode.episode_number).padStart(2, '0')}`
+                window.location.href = `/watch/${titleData.data._id}/s${seasonString}/e${episodeString}`
             }
             const episodeElement = $(`<div class='episode'>
                 <p class="number">#${episodeNumber}</p>
                 <div class='img' style='--background-image: url("${episode.image}")'><div class='play-wrapper'>${playHTML}</div></div>
                 <div class='info'>
-                <p class='title'>${episode.name} <b class="rating">${episode.rating.toFixed(1)} ⭐</b></p>
+                <p class='title'>${episode.name} <b class="rating">${episode.rating.toFixed(1)} ⭐  ${episode.time.s}</b></p>
                 <p class='description'>${description}</p>
                 </div>
                 </div>`)
-
+            
             episodesContainer.append(episodeElement)
+            
+            const watchData = watchHistory[`${titleData.data._id}_S${seasonString}_E${episodeString}`]
+            if (watchData) {
+                console.log(watchData)
+                episodeElement.find(".img").append(`<div class="progress-bar">
+                <div class="progress" style="width: ${(((parseInt(watchData.timestamp)/60)/episode.time.m)+.1)*100}%"></div>
+            </div>`)
+            }
+
             episodeElement.on("click", onClick)
         }
     }
 
-    console.log(continue_watching)
-
     if (titleData.metadata.type == "movie") {
-        right.append(`<a class='play-main' href='/watch/${titleData.data._id}'>PLAY ${playHTML}</a>`)
+        right.append(`<a class='play-main' href='/watch/${titleData.data._id}'>PLAY⠀${playHTML}</a>`)
+        contentOverlay.find(".title-wrapper").append(titleData.metadata.time.s)
     } else {
-        const title_continue_watching = continue_watching[titleData.data._id] || {id: titleData.data._id, season: 'S01', episode: 'E01'}
-        right.append(`<a class='play-main' href='/watch/${title_continue_watching.id}/${title_continue_watching.season.toLowerCase()}/${title_continue_watching.episode.toLowerCase()}'>PLAY ${playHTML}</a>`)
+        const title_continue_watching = continueWatching[titleData.data._id] || {id: titleData.data._id, season: 'S01', episode: 'E01'}
+        right.append(`<a class='play-main' href='/watch/${title_continue_watching.id}/${title_continue_watching.season.toLowerCase()}/${title_continue_watching.episode.toLowerCase()}'>PLAY ${title_continue_watching.season} ${title_continue_watching.episode}⠀${playHTML}</a>`)
         const seasonNavigation = $("<div class='season-nav'></div>")
         right.append(seasonNavigation)
         right.append(episodesContainer)
@@ -92,7 +100,14 @@ function showContentOverlay(titleData){
 
     function close(){
         $(".content-overlay-wrapper").removeClass("active")
-        $("body").removeClass("nooverflow")
+        $(".content-overlay-wrapper").addClass("nooverflow")
+        $(".content-overlay").addClass("nooverflow")
+        setTimeout(() => {
+            $(".content-overlay-wrapper").addClass("displaynone")
+            $("body").removeClass("nooverflow")
+            $(".content-overlay-wrapper").removeClass("nooverflow")
+            $(".content-overlay").removeClass("nooverflow")
+        }, 0);
     }
     
     closeButton.on("click", close)
@@ -109,7 +124,11 @@ function showContentOverlay(titleData){
     });
 
     $(".content-overlay-wrapper").addClass("active")
+    $(".content-overlay-wrapper").removeClass("displaynone")
     $("body").addClass("nooverflow")
+    setTimeout(() => {
+        
+    }, 100);
 }
 
 function initTitle(element, titleData){

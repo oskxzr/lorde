@@ -28,12 +28,16 @@
     <div id="aura" class="inactive"></div>
 
     <div class="login container fadein" style="--fade-in-delay: .25s">
+        {% if logo %}
+        <h1 class="fadein title" style="--fade-in-delay: .35s;">If you wanna watch <img src="{{logo}}" alt="">, you're gonna have to login</h1>
+        {% else %}
         <h1 class="fadein" style="--fade-in-delay: .35s;">Login</h1>
+        {% endif %}
         <form id="login-form">
             <div class="form-group fadein" style="--fade-in-delay: .45s;">
-                <label for="login-Username">Username</label>
+                <label for="login-username">Username</label>
                 <div class="input-wrapper">
-                    <input id="login-Username" name="username">
+                    <input id="login-username" name="username">
                 </div>
             </div>
 
@@ -43,6 +47,8 @@
                     <input type="password" id="login-password" name="password">
                 </div>
             </div>
+
+            <p id="error"></p>
 
             <button id="login-confirm" class=" fadein" style="--fade-in-delay: .65s;">Log In</button>
         </form>

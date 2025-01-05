@@ -56,4 +56,24 @@ button {
     display: inline-block;
     align-self: flex-start;
     margin-top: 5px;
+    transform: scale(1);
+    transition: transform .25s, filter .25s;
+}
+
+button.loading {
+    transform: scale(0.9);
+    filter: brightness(65%);
+}
+
+#error {
+    height: 1em;
+    color: red;
+    font-family: AHGB;
+}
+
+
+
+.title img {
+    height: 1.2em;
+    /* transform: scale(1.2); */
 }

@@ -45,8 +45,8 @@
         </div>
     </div>
 
-    <div class="content-overlay-wrapper">
-        <div class="content-overlay noglow container" id="content-overlay"></div>
+    <div class="content-overlay-wrapper displaynone">
+        <div class="content-overlay container" id="content-overlay"></div>
     </div>
     {% set delay = namespace(counter=0.5) %}
 
@@ -72,7 +72,8 @@
     ) }}
 
     <script>
-        const continue_watching = {{continue_watching|tojson|safe}}
+        const continueWatching = {{continue_watching|tojson|safe}}
+        const watchHistory = {{watch_history|tojson|safe}}
     
     </script>
 </body>
