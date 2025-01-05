@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home | Lorde</title>
 
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="/static/images/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg" />
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Lorde" />
+    <link rel="manifest" href="/static/images/site.webmanifest" />
+
     <!-- JS -->
     <script src="{{ url_for('static', filename='modules/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/aura.js') }}"></script>
@@ -26,6 +34,17 @@
 </head>
  
 <body>
+    <div class="navbar">
+        <div class="logo img" style="--background-image: url('/static/images/logo.png')"></div>
+        <div class="nav">
+            {% if logged_in %}
+            <a href="/auth/logout">Logout</a>
+            {% else %}
+            <a href="/auth">Login</a>
+            {% endif %}
+        </div>
+    </div>
+
     <div class="content-overlay-wrapper">
         <div class="content-overlay noglow container" id="content-overlay"></div>
     </div>
