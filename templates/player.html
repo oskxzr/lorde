@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- JS -->
+     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+    <script src="https://www.gstatic.com/cast/sdk/libs/sender/1.0/cast_framework.js"></script>
     <script src="{{ url_for('static', filename='modules/jquery.js') }}"></script>
     <script src="{{ url_for('static', filename='modules/plyr.js') }}"></script>
     <script src="{{ url_for('static', filename='js/player.js') }}"></script>
@@ -51,6 +53,7 @@
         {% endfor %}
         <track kind="subtitles" label="English" src="{{ subtitles }}" srclang="en" default>
     </video>
+    <button id="cast-button">Cast</button>
     <script>
         $(document).ready(function() {
             initPlayer({{timestamp|float}})

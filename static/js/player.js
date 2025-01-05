@@ -1,9 +1,34 @@
 let player
 
 function initPlayer(timestamp) {
-    console.log("initialising...")
     const sources = Array.from(document.querySelectorAll('#player source'));
     const qualityOptions = sources.map(source => parseInt(source.getAttribute('data-quality'))).filter(Boolean);
+
+    const castOptions = {
+        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+      };
+    
+    const castContext = cast.framework.CastContext.getInstance();
+    castContext.setOptions(castOptions);
+
+    const chromecastControl = {
+        name: 'chromecast',
+        icon: 'cast',
+        title: 'Cast to Chromecast',
+        click: () => {
+          if (castContext.getCastState() !== chrome.cast.CastState.NO_CASTERS_AVAILABLE) {
+            castContext.requestSession().then(session => {
+              session.setMediaSession(new chrome.cast.media.MediaSession('Video Player'));
+              const mediaInfo = new chrome.cast.media.MediaInfo(player.source, 'video/mp4');
+              session.loadMedia(mediaInfo, {
+                autoplay: true,
+                currentTime: player.currentTime
+              });
+            });
+          }
+        }
+      };      
 
     player = new Plyr('#player', {
         quality: {
@@ -17,8 +42,32 @@ function initPlayer(timestamp) {
         keyboard: {
             focused: true,
             global: true
-        }
+        },
+        controls: [
+            'play-large',
+            'play',
+            'progress',
+            'current-time',
+            'duration',
+            'mute',
+            'volume',
+            'captions',
+            'settings',
+            'airplay',
+            'fullscreen',
+          ],
     });
+
+
+
+    castContext.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, event => {
+        console.log(event.sessionState)
+        // if (event.sessionState == "SESSION_START_FAILED") {
+        //   player.pause();
+        // } else if (event.sessionState == chrome.cast.SessionState.SESSION_START_FAILED) {
+        //   player.play();
+        // }
+      });
 
     player.on('enterfullscreen', event => {
         try {
@@ -42,6 +91,8 @@ function initPlayer(timestamp) {
 
     // Function to update the watch history on the server
     function updateWatchHistory(){
+        console.log('Cast State:', castContext.getCastState());
+
         $.ajax({
             url: '/watchhistory',
             method: 'POST',
@@ -70,3 +121,24 @@ function initPlayer(timestamp) {
         }
     });
 }
+
+$(document).ready(function() {
+    const player = new Plyr('#player');
+    const customButton = $('<button class="plyr__control cast" type="button">Cast</button>');
+
+    customButton.on('click', function() {
+        const castContext = cast.framework.CastContext.getInstance();
+
+        if (castContext.getCastState() !== cast.framework.CastState.NO_CASTERS_AVAILABLE) {
+            castContext.requestSession().then(session => {
+                const mediaInfo = new chrome.cast.media.MediaInfo(player.source, 'video/mp4');
+                const request = new chrome.cast.media.LoadRequest(mediaInfo);
+                session.loadMedia(request).catch(console.error);
+            }).catch(console.error);
+        } else {
+            alert('No cast devices available.');
+        }
+    });
+
+    $('.plyr__controls').append(customButton);
+});
