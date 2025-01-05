@@ -49,23 +49,32 @@ function showContentOverlay(titleData){
 
         for (let episode of episodes) {
             const description = episode.description.length > 200 ? episode.description.substring(0, 200) + '...' : episode.description;
-
-            episodesContainer.append(`<div class='episode'>
-                <p class="number">#${episode.episode_number}</p>
+            const episodeNumber = episode.episode_number
+            
+            function onClick(){
+                window.location.href = `/watch/${titleData.data._id}/s${String(season).padStart(2, '0')}/e${String(episode.episode_number).padStart(2, '0')}`
+            }
+            const episodeElement = $(`<div class='episode'>
+                <p class="number">#${episodeNumber}</p>
                 <div class='img' style='--background-image: url("${episode.image}")'><div class='play-wrapper'>${playHTML}</div></div>
                 <div class='info'>
                 <p class='title'>${episode.name} <b class="rating">${episode.rating.toFixed(1)} ⭐</b></p>
                 <p class='description'>${description}</p>
                 </div>
-                </div>`).on("click", function(){
-                    window.location.href = `/watch/${titleData.data._id}/s${String(season).padStart(2, '0')}/e${String(episode.episode_number).padStart(2, '0')}`
-                })
+                </div>`)
+
+            episodesContainer.append(episodeElement)
+            episodeElement.on("click", onClick)
         }
     }
+
+    console.log(continue_watching)
 
     if (titleData.metadata.type == "movie") {
         right.append(`<a class='play-main' href='/watch/${titleData.data._id}'>PLAY ${playHTML}</a>`)
     } else {
+        const title_continue_watching = continue_watching[titleData.data._id] || {id: titleData.data._id, season: 'S01', episode: 'E01'}
+        right.append(`<a class='play-main' href='/watch/${title_continue_watching.id}/${title_continue_watching.season.toLowerCase()}/${title_continue_watching.episode.toLowerCase()}'>PLAY ${playHTML}</a>`)
         const seasonNavigation = $("<div class='season-nav'></div>")
         right.append(seasonNavigation)
         right.append(episodesContainer)
