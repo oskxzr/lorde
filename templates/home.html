@@ -15,73 +15,53 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 
+    <!-- MACROS -->
+    {% from "macros/title.html" import title_element %}
+    {% from "macros/content_list.html" import content_list %}
+
     {% for title in title_data %}
     <link rel="preload" as="image" href="{{ title_data[title]['metadata']['logo'] }}">
     <link rel="preload" as="image" href="{{ title_data[title]['metadata']['backdrop'] }}">
     {% endfor %}
 </head>
-
+ 
 <body>
-    <div id="aura" class="inactive"></div>
     <div class="content-overlay-wrapper">
-        <div class="content-overlay noglow container" id="content-overlay">
-
-        </div>
+        <div class="content-overlay noglow container" id="content-overlay"></div>
     </div>
-
     {% set delay = namespace(counter=0.5) %}
 
-    <div class="content-list container fadein" style="--fade-in-delay: .15s;">
-
-        <h1 class="fadein" style="--fade-in-delay: .35s;">The hottest shit on Lorde RIGHT NOW!</h1>
-        <div class="content-wrapper">
-
-            {% for title in title_data %}
-            <img 
-            src="{{ title_data[title]['metadata']['logo'] }}" 
-            alt="Movie Poster" 
-            width="500" 
-            height="750" 
-            style="display: none;"
-            >
-            <img 
-            src="{{ title_data[title]['metadata']['backdrop'] }}" 
-            alt="Movie Poster" 
-            width="500" 
-            height="750" 
-            style="display: none;"
-            >
+    {% if continue_watching and continue_watching|length > 0 %}
+    {# Continue Watching Section #}
+    {{ content_list(
+        "WAT THE SIGMA?? pick up where you SKIBIDI left off!",
+        continue_watching,
+        title_data,
+        0.4,
+        continue_watching
+    ) }}
+    {% endif %}
 
 
-            <div class="title-element fadein" style="--fade-in-delay: {{ delay.counter }}s;"
-                id="title_id_{{ delay.counter }}">
-                <div class="img" style="--background-image: url('{{ title_data[title]['metadata']['poster'] }}')"></div>
-                <div class="metadata">
-                    <p class="title">{{title}}</p>
-                    {% set quality = title_data[title]["data"]["qualities"][0] %}
-                    {% if quality == "2160p" %}
-                    <p class="quality high">4k</p>
-                    {% else %}
-                    <p class="quality">{{quality}}</p>
-                    {% endif %}
+    {# Hot Right Now Section #}
+    {{ content_list(
+        "The hottest shit on Lorde RIGHT NOW!",
+        title_data,
+        title_data,
+        0.8,
+        continue_watching
+    ) }}
 
-                    {% if title_data[title]["metadata"]["type"] == "series" %}
-                    <p>{{title_data[title]["seasons"]|length}} Seasons</p>
-                    {% else %}
-                    <p>{{ title_data[title]["metadata"]["time"] }}</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <script>
-                console.log()
-                initTitle(document.getElementById("title_id_{{ delay.counter }}"), {{ title_data[title]| tojson | safe }})
-            </script>
-
-            {% set delay.counter = delay.counter + 0.15 %}
-            {% endfor %}
-        </div>
-    </div>
+    <script>
+        const continue_watching = {{continue_watching|tojson|safe}}
+    
+    </script>
 </body>
+<script>
+    const title_data = {{title_data|tojson|safe}}
+    $(".title-element").on("click", function(){
+        showContentOverlay(title_data[$(this).attr("id")])
+    })
+</script>
 
 </html>
