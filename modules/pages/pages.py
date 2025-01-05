@@ -107,7 +107,7 @@ def pages_index():
         user_watch_history = watch_history.find(session.get("user_data")["_id"])
     if user_watch_history != {}:
         del user_watch_history["_id"]
-    return render_template("home.html", title_data = title_data, watch_history = user_watch_history, continue_watching = create_continue_watching(user_watch_history))
+    return render_template("home.html", title_data = title_data, watch_history = user_watch_history, continue_watching = create_continue_watching(user_watch_history), logged_in = session.get("session_key") != None)
     # return render_template("home.html", title_data = title_data)
 
 def get_watch_history(user_id, id, season = None, episode = None):
@@ -148,10 +148,16 @@ def pages_watch(path):
             tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{path}/{quality}/{season}/{episode}.mp4", 'quality': int(quality[:-1])})
 
     last_watched = get_watch_history(session["user_data"]["_id"], path.lower(), season, episode)
-    if last_watched:
-        return render_template("player.html", tracks = tracks, title_data = title_data[path.lower()], timestamp = last_watched["timestamp"], subtitles = subtitles, next_episode = next_episode)
-    else:
-        return render_template("player.html", tracks = tracks, title_data = title_data[path.lower()], subtitles = subtitles, next_episode = next_episode)
+    
+    return render_template(
+        "player.html", 
+        tracks=tracks, 
+        title_data=title_data[path.lower()], 
+        timestamp=last_watched.get("timestamp") if last_watched else None, 
+        subtitles=subtitles, 
+        next_episode=next_episode
+    )
+
 
 
 @pages.route("/resettitledata")
