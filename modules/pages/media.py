@@ -9,8 +9,8 @@ def format_runtime(minutes: int) -> str:
     hours = minutes // 60
     mins = minutes % 60
     if hours > 0:
-        return f"{hours}h {mins}m"
-    return f"{mins}m"
+        return {"s": f"{hours}h {mins}m", "m": minutes}
+    return {"s": f"{mins}m", "m": minutes}
 
 class Episode:
     def __init__(self, episode_data: dict):

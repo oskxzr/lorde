@@ -14,7 +14,7 @@ def add_user(username, password):
 
 @auth.route("/")
 def auth_index():
-    return render_template("auth.html")
+    return render_template("auth.html")  
 
 @auth.route("/logout")
 def auth_logout():
