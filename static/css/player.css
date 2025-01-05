@@ -20,7 +20,7 @@
     position: fixed;
     opacity: 0;
     transform: translateY(40px);
-    z-index: 0;
+    z-index: -100;
     width: 500px;
     padding: 20px;
     border-radius: 10px;
@@ -36,19 +36,21 @@
 #next-episode-popup.active {
     opacity: 1;
     transform: translateY(0px);
-    z-index: 6;
+    z-index: 2147483647;
 }
 
 #next-episode-popup .left,
 #next-episode-popup .right {
+    display: flex;
+    flex-direction: column;
     cursor: pointer;
     width: 47.5%;
+    gap: 10px
 }
 
 #next-episode-popup .left {
-    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: baseline;
 }
 
 #next-episode-popup .right .title {
@@ -66,8 +68,41 @@
 
 #next-episode-popup .bottom {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 20px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+}
+
+#next-episode-popup button {
+    cursor: pointer;
+    padding: 8px;
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 15px;
+}
+
+#next-episode-popup .countdown{
+    margin-top: 10px
+}
+
+/* When in fullscreen */
+:fullscreen #next-episode-popup {
+    position: absolute;
+}
+
+/* Webkit fullscreen */
+:-webkit-full-screen #next-episode-popup {
+    position: absolute;
+}
+
+/* Mozilla fullscreen */
+:-moz-full-screen #next-episode-popup {
+    position: absolute;
+}
+
+/* Microsoft fullscreen */
+:-ms-fullscreen #next-episode-popup {
+    position: absolute;
 }
