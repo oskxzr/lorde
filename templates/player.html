@@ -53,7 +53,6 @@
         {% endfor %}
         <track kind="subtitles" label="English" src="{{ subtitles }}" srclang="en" default>
     </video>
-    <button id="cast-button">Cast</button>
     <script>
         $(document).ready(function() {
             initPlayer({{timestamp|float}})
