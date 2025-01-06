@@ -25,11 +25,11 @@ def get_next_episode(show_id, season, episode):
             "episode": f"E{(episode_num + 1):02}",
             "timestamp": 0
         }
-    elif str(season_num + 1) in title_data[show_id]["seasons"]:
+    elif str(season_num + 1) in title_data[show_id.lower()]["seasons"]:
         # First episode of the next season
         return {
-            "season": f"s{(season_num + 1):02}",
-            "episode": "E1",
+            "season": f"S{(season_num + 1):02}",
+            "episode": "E01",
             "timestamp": 0
         }
     # No next episode available
@@ -51,7 +51,7 @@ def create_continue_watching(user_watch_history):
             season_num = int(data["season"][1:])
             episode_num = int(data["episode"][1:])
             
-            episode_length = title_data[show_id]["seasons"][str(season_num)][episode_num]["time"]["m"]
+            episode_length = title_data[show_id]["seasons"][str(season_num)][episode_num-1]["time"]["m"]
             minutes_remaining = ((episode_length) - (float(data["timestamp"]) / 60))
             
             # If episode is >95% complete, set up the next episode
@@ -137,8 +137,9 @@ def pages_watch(path):
         next_episode_data = get_next_episode(path, season, episode)
         if next_episode_data:
             next_episode = next_episode_data
-            next_episode["data"] = title_data[path.lower()]["seasons"][str(int(season[1:]))][int(episode[1:])]
+            next_episode["data"] = title_data[path.lower()]["seasons"][str(int(next_episode["season"][1:]))][int(next_episode["episode"][1:])-1]
             next_episode["title"] = path
+        print(next_episode)
         subtitles = f"/static/subtitles/{path}/{season}/{episode}.vtt"
 
     for quality in data["qualities"]:
