@@ -29,7 +29,7 @@ function initPlayer(timestamp) {
           }
         }
       };      
-
+    console.log(qualityOptions)
     player = new Plyr('#player', {
         quality: {
             default: Math.max(...qualityOptions),
