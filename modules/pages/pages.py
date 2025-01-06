@@ -122,14 +122,14 @@ def get_watch_history(user_id, id, season = None, episode = None):
 def pages_watch(path):
     split = path.split("/")
     title = split[0]
-    data = titles.find({"_id": title.lower()})
+    data = titles.find(title.lower())
     tracks = []
     path = title.upper()
     season = None
     episode = None
     subtitles = None
     next_episode = None
-    if data["type"] == "MOVIE":
+    if data and data["type"] == "MOVIE":
         subtitles = f"/static/subtitles/{path}.vtt"
     else:
         season = split[1].upper()
