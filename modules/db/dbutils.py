@@ -13,3 +13,4 @@ user_data = database.get_collection("web", "user_data")
 watch_history = database.get_collection("web", "watch_history")
 
 titles = database.get_collection("static", "titles")
+error_messages = database.get_collection("static", "error_messages")

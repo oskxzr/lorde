@@ -1,14 +1,16 @@
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, abort
 import os
 import requests
 from modules.pages.media import Media
 import time
+from werkzeug.exceptions import HTTPException
 
 pages = Blueprint("pages", __name__)
 
 from modules.db import dbutils
 titles = dbutils.titles
 watch_history = dbutils.watch_history
+error_templates = dbutils.error_messages
 
 title_data = {}
 
@@ -73,7 +75,7 @@ def update_title_data():
     print("getting title data...")
     local_title_data = {}
     for entry in titles.find_many({}):
-        media = Media(entry["name"])
+        media = Media(entry)
         media_data = {}
         media_data["data"] = entry
         media_data["metadata"] = media.get_metadata()
@@ -91,17 +93,28 @@ update_title_data()
 
 def test_backend():
     url = os.environ["CDN_BASE"]
-    try: 
-        request = requests.get(url, timeout=4)
-        print(request.status_code)
-        return str(request[0].status_code) not in ["3", "4"]
-    except:
+    try:
+        response = requests.get(url, timeout=4)
+        print(response.status_code, response.status_code == 404, type(response.status_code)) # Prints 404, class 'int'
+        if response.status_code == 404:
+            return True # Doesnt return
+        return str(response.status_code)[0] not in ["3", "4"]
+    except requests.exceptions.RequestException:
+        print("an error occuredd...")
         return False
+    
+@pages.app_errorhandler(HTTPException)
+def handle_http_exception(e):
+    error_details = error_templates.find(str(e.code)) or error_templates.find("default")
+    if not error_details.get("error"):
+        error_details["error"] = f"{e.code} {e.name}"
+    return render_template('error.html', details = error_details)
 
 @pages.route("/")
 def pages_index():
-    # if not test_backend():
-    #     return render_template("offline.html")
+    test = test_backend()
+    if not test:
+        return render_template("error.html", details = error_templates.find("backend"))
     user_watch_history = {}
     if session.get("user_data"):
         user_watch_history = watch_history.find(session.get("user_data")["_id"]) or {}
@@ -109,6 +122,10 @@ def pages_index():
         del user_watch_history["_id"]
     return render_template("home.html", title_data = title_data, watch_history = user_watch_history, continue_watching = create_continue_watching(user_watch_history), logged_in = session.get("session_key") != None)
     # return render_template("home.html", title_data = title_data)
+
+@pages.route('/error/<int:code>')
+def simulate_error(code):
+    abort(code)
 
 def get_watch_history(user_id, id, season = None, episode = None):
     watch_history_data = watch_history.find(user_id)
@@ -139,7 +156,6 @@ def pages_watch(path):
             next_episode = next_episode_data
             next_episode["data"] = title_data[path.lower()]["seasons"][str(int(next_episode["season"][1:]))][int(next_episode["episode"][1:])-1]
             next_episode["title"] = path
-        print(next_episode)
         subtitles = f"/static/subtitles/{path}/{season}/{episode}.vtt"
 
     for quality in data["qualities"]:
