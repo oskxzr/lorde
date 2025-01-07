@@ -3,6 +3,7 @@ let player
 function initPlayer(timestamp) {
     const sources = Array.from(document.querySelectorAll('#player source'));
     const qualityOptions = sources.map(source => parseInt(source.getAttribute('data-quality'))).filter(Boolean);
+    console.log(qualityOptions)
 
     player = new Plyr('#player', {
         quality: {

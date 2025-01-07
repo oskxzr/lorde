@@ -36,16 +36,18 @@ class Episode:
 class Media:
     BASE_URL = "https://api.themoviedb.org/3"
     
-    def __init__(self, title: str):
+    def __init__(self, entry):
         self._media_data = None
         self._images_data = None
+        title = entry.get("name")
+        year = entry.get("year")
         search_data = self._make_request("/search/multi", {"query": title})
         
         if not search_data.get('results'):
             raise ValueError(f"No media found with title: {title}")
             
         for result in search_data['results']:
-            if result['media_type'] in ['tv', 'movie']:
+            if result['media_type'] in ['tv', 'movie'] and (not year or year in result["first_air_date"]):
                 self._media_type = result['media_type']
                 media_id = result['id']
                 self._media_data = self._make_request(f"/{self._media_type}/{media_id}")
