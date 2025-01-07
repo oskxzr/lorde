@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{details.error}} | Lorde</title>
+
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="/static/images/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg" />
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Lorde" />
+    <link rel="manifest" href="/static/images/site.webmanifest" />
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='modules/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/aura.js') }}"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+</head>
+<body>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: min(95vw, 750px);
+        }
+
+        .error {
+            width: 100%;
+            padding: 2vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 2px solid rgb(94, 94, 94);
+            margin-top: 2vh;
+        }
+
+        .error p {
+            color: rgb(94, 94, 94);
+            font-family: AHGB;
+        }
+    </style>
+    <div id="aura" class="inactive"></div>
+
+    <div class="container fadein" style="--fade-in-delay: 1s;">
+        <div class="heading1 fadein" style="--fade-in-delay: 2s;">
+            <h1>{{details.title}}</h1>
+        </div>
+        {% set delay = namespace(counter=3) %}
+        {% for text_element in details.text %}
+        <p class="fadein" style="--fade-in-delay: {{delay.counter}}s;">{{text_element|safe}}</p>
+        {% set delay.counter = delay.counter + 2 %}
+        {% endfor %}
+        <section class="fadein error" style="--fade-in-delay: {{delay.counter}}s;">
+            {% set delay.counter = delay.counter + 0.5 %}
+            <p class="fadein" style="--fade-in-delay: {{delay.counter}}s;">Error {{details.error}}</p>
+        </section>
+    </div>
+</body>
+</html>
