@@ -93,15 +93,11 @@ update_title_data()
 
 def test_backend():
     url = os.environ["CDN_BASE"]
-    try:
-        response = requests.get(url, timeout=4)
-        print(response.status_code, response.status_code == 404, type(response.status_code)) # Prints 404, class 'int'
-        if response.status_code == 404:
-            return True # Doesnt return
-        return str(response.status_code)[0] not in ["3", "4"]
-    except requests.exceptions.RequestException:
-        print("an error occuredd...")
-        return False
+    response = requests.get(url, timeout=4)
+    print(response.status_code, response.status_code == 404 , type(response.status_code)) # Prints 404, class 'int'
+    if response.status_code == 404:
+        return True # Doesnt return
+    return str(response.status_code)[0] not in ["3", "4"]
     
 @pages.app_errorhandler(HTTPException)
 def handle_http_exception(e):
@@ -112,9 +108,9 @@ def handle_http_exception(e):
 
 @pages.route("/")
 def pages_index():
-    test = test_backend()
-    if not test:
-        return render_template("error.html", details = error_templates.find("backend"))
+    # test = test_backend()
+    # if not test:
+    #     return render_template("error.html", details = error_templates.find("backend"))
     user_watch_history = {}
     if session.get("user_data"):
         user_watch_history = watch_history.find(session.get("user_data")["_id"]) or {}
