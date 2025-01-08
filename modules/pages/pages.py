@@ -163,7 +163,7 @@ def pages_watch(path):
     last_watched = get_watch_history(session["user_data"]["_id"], path.lower(), season, episode)
     
     return render_template(
-        "player.html", 
+        "watch.html", 
         tracks=tracks, 
         title_data=title_data[path.lower()], 
         timestamp=last_watched.get("timestamp") if last_watched else None, 
