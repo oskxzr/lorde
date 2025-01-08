@@ -284,6 +284,10 @@ body {
     border-top: 1px solid #434343;
 }
 
+.episodes-container:last-child {
+    margin-bottom: 30px;
+}
+
 .content-overlay .episode {
     width: 100%;
     display: flex;
