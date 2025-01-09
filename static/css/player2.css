@@ -1,0 +1,175 @@
+/* Wrappers and containers */
+
+body {
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+#video-container {
+    width: 100vw;
+    height: 100vh;
+}
+
+.player {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+#video-element {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.player-bottom {
+    width: 100%;
+    position: absolute;
+    bottom: 0.5vh;
+    padding: 0 25px ;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+
+
+.player-bottom .left,
+.player-bottom .right {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+/* Button styling */
+
+button {
+    padding: 10px;
+    color: white;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button svg path {
+    transition: fill .25s;
+    fill: rgba(255, 255, 255, 0.5);
+}
+
+button:hover svg path {
+    fill: rgba(255, 255, 255, 0.8);
+}
+
+button svg {
+    width: 20px;
+    height: 20px;
+}
+
+#time-display {
+    transition: color .25s;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#time-display:hover {
+    color: rgba(255, 255, 255, 0.8)
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: baseline;
+    flex-direction: row;
+    position: relative;
+    transition: height .125s;
+    flex-shrink: 0;
+}
+.progress-bar * {
+    position: absolute;
+}
+.progress-bar.active {
+    height: 10px;
+}
+
+.scrubber-container {
+    height: 100%;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: var(--secondary-color);
+    opacity: 0.8;
+}
+.progress-bar.active .scrubber-container {
+    opacity: 1;
+}
+.scrubber {
+    height: 20px;
+    width: 20px;
+    background-color: var(--secondary-color);
+    border-radius: 20px;
+    transition: height .125s, width .125s;
+    transform: translateX(50%);
+}
+
+.progress-bar.active .hover-progress,
+.buffer-progress {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.hover-progress,
+.buffer-progress {
+    height: 100%;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0);
+    border-radius: 25px;
+    z-index: 2;
+    width: 0%;
+}
+
+.hover-information {
+    height: 150px;
+    width: calc(100% - 50px);
+    position: absolute;
+    display: none;
+    top: -150px;
+}
+
+.hover-information.active {
+    display: block;
+}
+
+.hover-display{
+    width: 200px;
+    height: 112.5px;
+    bottom: 20px;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: last baseline;
+    flex-direction: column;
+    gap: 15px
+}
+
+
+#hover-timestamp {
+    color: white;
+    font-family: AHGB;
+    width: 100%;
+    text-align: center;
+}
