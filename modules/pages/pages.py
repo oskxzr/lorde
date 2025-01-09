@@ -136,12 +136,14 @@ def pages_watch(path):
     split = path.split("/")
     title = split[0]
     data = titles.find(title.lower())
-    tracks = []
     path = title.upper()
+
     season = None
     episode = None
     subtitles = None
     next_episode = None
+    tracks = []
+
     if data and data["type"] == "MOVIE":
         subtitles = f"/static/subtitles/{path}.vtt"
     else:
@@ -167,10 +169,46 @@ def pages_watch(path):
         tracks=tracks, 
         title_data=title_data[path.lower()], 
         timestamp=last_watched.get("timestamp") if last_watched else None, 
-        subtitles=subtitles, 
+        subtitles=subtitles,
         next_episode=next_episode
     )
 
+@pages.route("/playertesting")
+def pages_playertesting():
+    season = "S01"
+    episode = "E01"
+    title = "breakingbad".upper()
+
+    data = titles.find(title.lower())
+    subtitles = None
+    next_episode = None
+    tracks = []
+
+    if data and data["type"] == "MOVIE":
+        subtitles = f"/static/subtitles/{title}.vtt"
+    else:
+        next_episode_data = get_next_episode(title, season, episode)
+        if next_episode_data:
+            next_episode = next_episode_data
+            next_episode["data"] = title_data[title.lower()]["seasons"][str(int(next_episode["season"][1:]))][int(next_episode["episode"][1:])-1]
+            next_episode["title"] = title
+        subtitles = f"/static/subtitles/{title}/{season}/{episode}.vtt"
+
+    for quality in data["qualities"]:
+        if data["type"] == "MOVIE":
+            tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{title}/{quality}/{title}.mp4", 'quality': int(quality[:-1])})
+        else:
+            tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{title}/{quality}/{season}/{episode}.mp4", 'quality': int(quality[:-1])})
+
+    last_watched = get_watch_history(session["user_data"]["_id"], title.lower(), season, episode)
+    return render_template(
+        "player.html", 
+        tracks=tracks, 
+        title_data=title_data[title.lower()], 
+        timestamp=last_watched.get("timestamp") if last_watched else None, 
+        subtitles=subtitles,
+        next_episode=next_episode
+    )
 
 
 @pages.route("/resettitledata")
