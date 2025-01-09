@@ -45,7 +45,7 @@ class Media:
         
         if not search_data.get('results'):
             raise ValueError(f"No media found with title: {title}")
-            
+        
         for result in search_data['results']:
             if result['media_type'] in ['tv', 'movie'] and (not year or year in result["first_air_date"]):
                 self._media_type = result['media_type']
