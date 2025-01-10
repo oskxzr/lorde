@@ -34,9 +34,15 @@ body {
     justify-content: space-between;
     flex-direction: row;
     flex-wrap: wrap;
+    opacity: 1;
+    transform: translateY(0px);
+    transition: opacity .5s, transform .5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
-
+.player-bottom.hidden {
+    opacity: 0;
+    transform: translateY(3vh);
+}
 
 .player-bottom .left,
 .player-bottom .right {
@@ -172,4 +178,137 @@ button svg {
     font-family: AHGB;
     width: 100%;
     text-align: center;
+}
+
+.keyframe-holder {
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+
+.keyframe-holder img {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity .25s;
+    border-radius: 15px;
+}
+
+.keyframe-holder img.active {
+    opacity: 1;
+}
+/* Style the captions */
+::cue {
+    color: yellow;
+    background-color: rgba(0, 0, 0, 0.7);
+    font-size: 20px;
+    font-family: AHGR;
+    text-shadow: 2px 2px 2px black;
+    line-height: normal;
+    padding: 10px;
+    border-radius: 10px;
+    line-height: 1.2;
+}
+
+/* Move the captions up */
+video::-webkit-media-text-track-container {
+    position: relative;
+    transform: translateY(-100px); /* Adjust this value to move up/down */
+}
+
+/* For Firefox */
+video::-moz-media-text-track-container {
+    position: relative;
+    transform: translateY(-100px);
+}
+
+.action {
+    position: absolute;
+    left: 50vw;
+    top: 50vh;
+    transform: translateX(-50%) translateY(-50%);
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100px;
+    background-color: var(--secondary-color);
+    animation: action .5s forwards linear;
+}
+
+@keyframes action {
+    0% {
+        transform: translateX(-50%) translateY(-50%) scale(.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-50%) scale(1);
+        opacity: .6;
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-50%) scale(1.2);
+        opacity: 0;
+    }
+}
+
+.action svg {
+    width: 60%;
+    height: 60%;
+}
+
+.action svg path {
+    fill: white;
+}
+
+.loading {
+    position: absolute;
+    left: 50vw;
+    top: 50vh;
+    transform: translateX(-50%) translateY(-50%);
+    width: 80px;
+    height: 80px;
+}
+
+.loading svg {
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.loading svg path {
+    fill: white;
+}
+
+.loading svg:nth-child(1) {
+    animation: loading-1 1.5s infinite linear;
+}
+
+.loading svg:nth-child(2) {
+    animation: loading-2 1s infinite linear;
+}
+
+@keyframes loading-1 {
+    0%{
+        transform: translateX(-50%) translateY(-50%) rotate(0deg);
+    }
+    100%{
+        transform: translateX(-50%) translateY(-50%) rotate(-360deg);
+    }
+}
+
+@keyframes loading-2 {
+    0%{
+        transform: translateX(-50%) translateY(-50%) scale(.7) rotate(0deg);
+    }
+    100%{
+        transform: translateX(-50%) translateY(-50%) scale(.7) rotate(360deg);
+    }
 }

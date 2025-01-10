@@ -88,7 +88,7 @@ def update_title_data():
         local_title_data[entry["_id"]] = media_data
     global title_data
     title_data = local_title_data
-    print("finished")
+    print("finished getting title data")
 update_title_data()
 
 def test_backend():
@@ -180,19 +180,15 @@ def pages_playertesting():
     title = "breakingbad".upper()
 
     data = titles.find(title.lower())
-    subtitles = None
     next_episode = None
     tracks = []
 
-    if data and data["type"] == "MOVIE":
-        subtitles = f"/static/subtitles/{title}.vtt"
-    else:
+    if data and data["type"] == "SERIES":
         next_episode_data = get_next_episode(title, season, episode)
         if next_episode_data:
             next_episode = next_episode_data
             next_episode["data"] = title_data[title.lower()]["seasons"][str(int(next_episode["season"][1:]))][int(next_episode["episode"][1:])-1]
             next_episode["title"] = title
-        subtitles = f"/static/subtitles/{title}/{season}/{episode}.vtt"
 
     for quality in data["qualities"]:
         if data["type"] == "MOVIE":
@@ -200,14 +196,27 @@ def pages_playertesting():
         else:
             tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{title}/{quality}/{season}/{episode}.mp4", 'quality': int(quality[:-1])})
 
+    watching_data = {"title": title.upper(), "base_url": os.environ["CDN_BASE"]}
+    if season:
+        watching_data["season"] = season
+        watching_data["episode"] = episode
+        watching_data["captions"] = f"{os.environ["CDN_BASE"]}/captions/{title.upper()}/{season}/{episode}"
+        watching_data["keyframes"] = f"{os.environ["CDN_BASE"]}/keyframes/{title.upper()}/{season}/{episode}"
+    else:
+        watching_data["captions"] = f"{os.environ["CDN_BASE"]}/captions/{title.upper()}"
+        watching_data["keyframes"] = f"{os.environ["CDN_BASE"]}/keyframes/{title.upper()}"
+
+    keyframe_data = requests.get(watching_data["keyframes"])
+    watching_data["keyframe_data"] = keyframe_data.json()
+
     last_watched = get_watch_history(session["user_data"]["_id"], title.lower(), season, episode)
     return render_template(
         "player.html", 
-        tracks=tracks, 
-        title_data=title_data[title.lower()], 
-        timestamp=last_watched.get("timestamp") if last_watched else None, 
-        subtitles=subtitles,
-        next_episode=next_episode
+        tracks = tracks, 
+        title_data = title_data[title.lower()], 
+        timestamp = last_watched.get("timestamp") if last_watched else None, 
+        next_episode = next_episode,
+        watching_data = watching_data,
     )
 
 
