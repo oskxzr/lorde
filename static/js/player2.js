@@ -96,8 +96,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
                 </div>
 
                 <div class="right">
-                    <button id="quality">Quality</button>
-                    <button id="captions">${player_icons.captions}</button>
+                    <button id="captions">${player_icons.subtitles_on}</button>
                     <button id="settings">${player_icons.settings}</button>
                     <button id="fullscreen">${player_icons.fullscreen}</button>
                 </div>
@@ -140,8 +139,12 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
     });
 
     // Add the video source and captions track
+    let tracks_elements = ""
+    for (let track of tracks) {
+        tracks_elements += `<source src='${track.src}' type="video/mp4">`
+    }
     videoElement.append(`
-        <source src='/static/E01.mp4' type="video/mp4">
+        ${tracks_elements}
         <track label="English" kind="subtitles" srclang="en" src="${captionsUrl}">
     `);
     // <track label="English" kind="subtitles" srclang="en" src="${watching_data.captions}">
@@ -155,18 +158,91 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
 
         if (enabled) {
             captionsTrack.mode = 'showing';
+            $("#captions").html(player_icons.subtitles_on)
+
+            if (!hideAction){
+                showAction("subtitles_on")
+            }
         } else {
             captionsTrack.mode = 'hidden';
+            $("#captions").html(player_icons.subtitles_off)
+
+            if (!hideAction){
+                showAction("subtitles_off")
+            }
         }
         settings.set("captions", enabled)
-        if (!hideAction){
-            showAction("captions")
-        }
     }
     toggleCaptions(settings.get("captions"), true)
     
     playerElement.find("#captions").on("click", function(){toggleCaptions()})
     Mousetrap.bind('c', function(){toggleCaptions()})
+
+// Fullscreen
+function toggleFullscreen(e) {
+    if (e && e.preventDefault) {
+        e.preventDefault();
+    }
+
+    var elem = playerElement.get(0)
+    
+    function enterFullscreen() {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        }
+    }
+
+    function exitFullscreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        }
+    }
+
+    if (!document.fullscreenElement && 
+        !document.webkitFullscreenElement && 
+        !document.msFullscreenElement && 
+        !document.mozFullScreenElement) {
+        console.log("Attempting to go fullscreen");
+        enterFullscreen();
+        $("#fullscreen").html(player_icons.fullscreen_exit);
+        showAction("fullscreen");
+    } else {
+        console.log("Attempting to exit fullscreen");
+        exitFullscreen();
+        $("#fullscreen").html(player_icons.fullscreen);
+        showAction("fullscreen_exit");
+    }
+}
+
+// Bind click event
+$("#fullscreen").on("click", function(e) {
+    toggleFullscreen(e);
+});
+
+// Bind keyboard shortcuts using Mousetrap
+Mousetrap.bind('f', function(e) {
+    toggleFullscreen(e);
+});
+
+// 'Escape' should only exit fullscreen
+Mousetrap.bind('escape', function(e) {
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.mozFullScreenElement) {
+        toggleFullscreen(e);
+    }
+});
+
 
     // Class framework
     const hoverInformation = playerElement.find(".hover-information")
@@ -379,7 +455,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             hiddenOnIdleDebounce = setTimeout(() => {
                 playerBottom.addClass("hidden");
                 $("body").css("cursor", "none"); // Hide the cursor after inactivity
-            }, 2000);
+            }, 3000);
         }
     });
 }

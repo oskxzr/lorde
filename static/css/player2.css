@@ -66,13 +66,23 @@ button {
     justify-content: center;
 }
 
-button svg path {
+button svg:not(.ignore-fill) path {
     transition: fill .25s;
     fill: rgba(255, 255, 255, 0.5);
 }
 
-button:hover svg path {
+button:hover svg:not(.ignore-fill) path {
     fill: rgba(255, 255, 255, 0.8);
+}
+
+button svg.ignore-fill {
+    transition: opacity .25s;
+    opacity: 0.5;
+    transform: scale(1.2);
+}
+
+button:hover svg.ignore-fill {
+    opacity: 0.8;
 }
 
 button svg {
@@ -261,7 +271,7 @@ video::-moz-media-text-track-container {
     height: 60%;
 }
 
-.action svg path {
+.action svg:not(.ignore-fill) path {
     fill: white;
 }
 
@@ -272,6 +282,7 @@ video::-moz-media-text-track-container {
     transform: translateX(-50%) translateY(-50%);
     width: 80px;
     height: 80px;
+    opacity: 0.5;
 }
 
 .loading svg {
@@ -283,7 +294,7 @@ video::-moz-media-text-track-container {
     position: absolute;
 }
 
-.loading svg path {
+.loading svg:not(.ignore-fill) path {
     fill: white;
 }
 
