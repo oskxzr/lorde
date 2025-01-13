@@ -9,37 +9,37 @@ class Settings {
         this.storageKey = 'playerSettings';
         this.settings = {};
         this.defaults = settingsConfig;
-        
+
         // Initialize settings
         this.load();
     }
-    
+
     load() {
         const stored = localStorage.getItem(this.storageKey);
         if (stored) {
             this.settings = JSON.parse(stored);
         } else {
             // Use defaults if no stored settings exist
-            this.settings = {...this.defaults};
+            this.settings = { ...this.defaults };
             this.save();
         }
     }
-    
+
     save() {
         localStorage.setItem(this.storageKey, JSON.stringify(this.settings));
     }
-    
+
     get(key) {
         return this.settings[key] ?? this.defaults[key];
     }
-    
+
     set(key, value) {
         this.settings[key] = value;
         this.save();
     }
-    
+
     reset() {
-        this.settings = {...this.defaults};
+        this.settings = { ...this.defaults };
         this.save();
     }
 }
@@ -75,6 +75,11 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
         <div class="player">
             <div class='loading'>${player_icons.loading} ${player_icons.loading}</div>
             <video id="video-element" preload="metadata"></video>
+            <div class="player-top">
+                <div class="back-arrow">${player_icons.back_arrow}</div>
+                <div class="title-information"><p class="title"></p><p class="subtitle"></p></div>
+            </div>
+
             <div class="player-bottom">
                 
                 <div class="hover-information">
@@ -104,7 +109,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             </div>
         </div>
         `)
-    
+
     const settings = new Settings({
         captions: false,
         volume: 1,
@@ -113,7 +118,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
 
     const captionsUrl = "/static/subtitles/BREAKINGBAD/S01/E01.vtt"
 
-    function showAction(icon){
+    function showAction(icon) {
         const actionElement = $(`<div class='action'>${player_icons[icon]}</div>`)
         playerElement.append(actionElement)
         setTimeout(() => {
@@ -121,20 +126,98 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
         }, 1000);
     }
 
+    // Add information to the player top, and define title related data. also do episodes while we're at it
+    const playerTop = playerElement.find(".player-top")
+    playerTop.on("click",function(){window.location.href="/"})
+    const topTitle = playerTop.find(".title")
+    const topSubtitle = playerTop.find(".subtitle")
+    let seasonData
+    let episodeData
+    if (watching_data.season) { // it is a series
+        seasonData = title_data.seasons[parseInt(watching_data.season.slice(1))]
+        episodeData = seasonData[parseInt(watching_data.episode.slice(1)) - 1]
+        topTitle.text(`${episodeData.name}`)
+        topSubtitle.text(`${title_data.data.name} (${watching_data.season} ${watching_data.episode})`)
+    } else { // not a series
+        topTitle.text(`${title_data.data.name}`)
+    }
+    // If it is a series, create and populate an episodes modal
+    if (seasonData) {
+        var episodeModal = $(`<div class='episode-modal container noglow hidden'></div>`)
+        for (let episodeNumber in seasonData) {
+            const episode = seasonData[episodeNumber]
+            episodeNumber = parseInt(episodeNumber)
+            episodeNumber += 1
+            console.log(episode)
+            const episodeElement = $(`<div class='episode'>
+                <p class='episode-number'>#${episodeNumber}</p>
+                <div class='img' style='--background-image: url("${episode.image}")'><div class='hover'>${player_icons.play}</div></div>
+                <div class='metadata'>
+                <p class='title'>${episode.name}</p>
+                <p class='description'>${episode.description}</p>
+                </div>
+                
+                </div>`)
+            episodeElement.on("click", function(){
+                window.location.href = `/watch/${watching_data.title.toLowerCase()}/${watching_data.season}/E${episodeNumber.toString().padStart(2, '0')}`
+            })
+            episodeModal.append(episodeElement)
+        }
+        playerElement.append(episodeModal)
+
+        let hovertimeout
+
+        $("#episodes").on("mouseenter",function(){
+            clearTimeout(hovertimeout)
+            episodeModal.removeClass("hidden")
+            setTimeout(() => {
+                episodeModal.addClass("active")
+            }, 100);
+        })
+
+        $("#episodes").on("mouseleave", function(){
+            clearTimeout(hovertimeout)
+            hovertimeout = setTimeout(() => {
+                episodeModal.removeClass("active")
+                setTimeout(() => {
+                    episodeModal.addClass("hidden")
+                }, 500);
+            }, 500);
+        })
+
+        episodeModal.on("mouseenter",function(){
+            clearTimeout(hovertimeout)
+            episodeModal.removeClass("hidden")
+            setTimeout(() => {
+                episodeModal.addClass("active")
+            }, 100);
+        })
+
+        episodeModal.on("mouseleave", function(){
+            clearTimeout(hovertimeout)
+            hovertimeout = setTimeout(() => {
+                episodeModal.removeClass("active")
+                setTimeout(() => {
+                    episodeModal.addClass("hidden")
+                }, 500);
+            }, 500);
+        })
+    }
+
     // Add the video tracks
     const videoElement = $("#video-element");
     const video = videoElement.get(0);
 
     // Loading element
-    $(video).on('waiting', function() {
+    $(video).on('waiting', function () {
         $('.loading').show();
     });
-    
-    $(video).on('playing', function() {
+
+    $(video).on('playing', function () {
         $('.loading').hide();
     });
-    
-    $(video).on('canplay', function() {
+
+    $(video).on('canplay', function () {
         $('.loading').hide();
     });
 
@@ -151,7 +234,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
     const captionsTrack = video.textTracks[0];
 
     // Captions controls
-    function toggleCaptions(enabled = null, hideAction = false){
+    function toggleCaptions(enabled = null, hideAction = false) {
         if (enabled == null) {
             enabled = settings.get("captions") == false
         }
@@ -160,88 +243,88 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             captionsTrack.mode = 'showing';
             $("#captions").html(player_icons.subtitles_on)
 
-            if (!hideAction){
+            if (!hideAction) {
                 showAction("subtitles_on")
             }
         } else {
             captionsTrack.mode = 'hidden';
             $("#captions").html(player_icons.subtitles_off)
 
-            if (!hideAction){
+            if (!hideAction) {
                 showAction("subtitles_off")
             }
         }
         settings.set("captions", enabled)
     }
     toggleCaptions(settings.get("captions"), true)
-    
-    playerElement.find("#captions").on("click", function(){toggleCaptions()})
-    Mousetrap.bind('c', function(){toggleCaptions()})
 
-// Fullscreen
-function toggleFullscreen(e) {
-    if (e && e.preventDefault) {
-        e.preventDefault();
-    }
+    playerElement.find("#captions").on("click", function () { toggleCaptions() })
+    Mousetrap.bind('c', function () { toggleCaptions() })
 
-    var elem = playerElement.get(0)
-    
-    function enterFullscreen() {
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) {
-            elem.msRequestFullscreen();
-        } else if (elem.mozRequestFullScreen) {
-            elem.mozRequestFullScreen();
+    // Fullscreen
+    function toggleFullscreen(e) {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+
+        var elem = playerElement.get(0)
+
+        function enterFullscreen() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            }
+        }
+
+        if (!document.fullscreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.msFullscreenElement &&
+            !document.mozFullScreenElement) {
+            console.log("Attempting to go fullscreen");
+            enterFullscreen();
+            $("#fullscreen").html(player_icons.fullscreen_exit);
+            showAction("fullscreen");
+        } else {
+            console.log("Attempting to exit fullscreen");
+            exitFullscreen();
+            $("#fullscreen").html(player_icons.fullscreen);
+            showAction("fullscreen_exit");
         }
     }
 
-    function exitFullscreen() {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        }
-    }
-
-    if (!document.fullscreenElement && 
-        !document.webkitFullscreenElement && 
-        !document.msFullscreenElement && 
-        !document.mozFullScreenElement) {
-        console.log("Attempting to go fullscreen");
-        enterFullscreen();
-        $("#fullscreen").html(player_icons.fullscreen_exit);
-        showAction("fullscreen");
-    } else {
-        console.log("Attempting to exit fullscreen");
-        exitFullscreen();
-        $("#fullscreen").html(player_icons.fullscreen);
-        showAction("fullscreen_exit");
-    }
-}
-
-// Bind click event
-$("#fullscreen").on("click", function(e) {
-    toggleFullscreen(e);
-});
-
-// Bind keyboard shortcuts using Mousetrap
-Mousetrap.bind('f', function(e) {
-    toggleFullscreen(e);
-});
-
-// 'Escape' should only exit fullscreen
-Mousetrap.bind('escape', function(e) {
-    if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.mozFullScreenElement) {
+    // Bind click event
+    $("#fullscreen").on("click", function (e) {
         toggleFullscreen(e);
-    }
-});
+    });
+
+    // Bind keyboard shortcuts using Mousetrap
+    Mousetrap.bind('f', function (e) {
+        toggleFullscreen(e);
+    });
+
+    // 'Escape' should only exit fullscreen
+    Mousetrap.bind('escape', function (e) {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.mozFullScreenElement) {
+            toggleFullscreen(e);
+        }
+    });
 
 
     // Class framework
@@ -287,7 +370,8 @@ Mousetrap.bind('escape', function(e) {
         if (!isDragging) {  // Only update if not currently dragging
             updatePlayProgress()
         }
-        playerElement.find("#time-display").text(`${formatTime(video.currentTime)} / ${formatTime(video.duration)}`)
+        const duration = isNaN(video.duration) ? 0 : video.duration
+        playerElement.find("#time-display").text(`${formatTime(video.currentTime)} / ${formatTime(duration)}`)
     });
 
     function updateBufferProgress(width) {
@@ -367,16 +451,49 @@ Mousetrap.bind('escape', function(e) {
     }
 
     // Add active state on hover
+    let progressBarBounds = progressBar[0].getBoundingClientRect();
+
+    $(window).on('resize', () => {
+        progressBarBounds = progressBar[0].getBoundingClientRect();
+    });
+
+    $(document).on('mousemove', function (event) {
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+
+        const withinVerticalRange =
+            mouseY >= progressBarBounds.top - 10 &&
+            mouseY <= progressBarBounds.bottom + 10;
+        const withinHorizontalRange =
+            mouseX >= progressBarBounds.left &&
+            mouseX <= progressBarBounds.right;
+
+        if (withinVerticalRange && withinHorizontalRange) {
+            toggleActive(true);
+
+            if (!isDragging) {
+                const percentage = calculatePercentage(event);
+                updateHoverProgress(percentage);
+                progressBarUserInput = percentage / 100;
+            }
+        } else if (!isDragging) {
+            toggleActive(false);
+            updateHoverProgress(0);
+        }
+    });
+
     progressBar.on('mouseenter', function () {
-        toggleActive(true)
+        toggleActive(true);
     });
 
     progressBar.on('mouseleave', function () {
-        if (!isDragging) {  // Only remove active class if not dragging
-            toggleActive(false)
-            updateHoverProgress(0);  // Reset hover progress
+        if (!isDragging) {
+            toggleActive(false);
+            updateHoverProgress(0);
         }
     });
+
+
 
     // Start dragging from anywhere on progress bar
     progressBar.on('mousedown', function (event) {
@@ -417,15 +534,6 @@ Mousetrap.bind('escape', function(e) {
         }
     }
 
-    // Keep existing hover functionality
-    progressBar.mousemove(function (event) {
-        if (!isDragging) {
-            const percentage = calculatePercentage(event);
-            updateHoverProgress(percentage);
-            progressBarUserInput = percentage / 100;
-        }
-    });
-
     // Keyboard controls
     function adjustCurrentTime(difference) {
         video.currentTime = Math.max(Math.min(video.currentTime + difference, video.duration), 0)
@@ -441,19 +549,21 @@ Mousetrap.bind('escape', function(e) {
 
     // Hide the player if the mouse isn't moving
     let hiddenOnIdleDebounce;
-    $(document).mousemove(function(event) {
+    $(document).mousemove(function (event) {
         const playerBottom = playerElement.find(".player-bottom");
         const playerBottomArea = playerBottom[0];
-    
+
         playerBottom.removeClass("hidden");
+        playerTop.removeClass("hidden");
         $("body").css("cursor", "auto"); // Show cursor when moving
-    
+
         clearTimeout(hiddenOnIdleDebounce);
-    
+
         // If the mouse is over the player controls, do not hide the controls
         if (!playerBottomArea.contains(event.target)) {
             hiddenOnIdleDebounce = setTimeout(() => {
                 playerBottom.addClass("hidden");
+                playerTop.addClass("hidden");
                 $("body").css("cursor", "none"); // Hide the cursor after inactivity
             }, 3000);
         }

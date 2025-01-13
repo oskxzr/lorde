@@ -44,6 +44,24 @@ body {
     transform: translateY(3vh);
 }
 
+.player-top {
+    cursor: pointer;
+    width: 100%;
+    position: absolute;
+    top: 0.5vh;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    opacity: .7;
+    transform: translateY(0px);
+    transition: opacity .5s, transform .5s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.player-top.hidden {
+    opacity: 0;
+    transform: translateY(-3vh);
+}
+
 .player-bottom .left,
 .player-bottom .right {
     display: flex;
@@ -51,6 +69,38 @@ body {
     flex-direction: row;
     gap: 5px;
     margin-top: 10px;
+}
+
+/* Player top */
+.player-top .back-arrow{
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+.player-top:hover{
+    opacity: .9;
+}
+.player-top svg {
+    width: 50px;
+    height: 50px;
+}
+.player-top svg path {
+    fill: white;
+}
+.player-top .title {
+    font-size: 23px;
+    font-family: AHGB;
+}
+.player-top .subtitle {
+    font-size: 16px;
+}
+.player-top .title-information {
+    height: 70px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+
 }
 
 /* Button styling */
@@ -128,14 +178,13 @@ button svg {
     align-items: center;
     justify-content: flex-end;
     background-color: var(--secondary-color);
-    opacity: 0.8;
 }
 .progress-bar.active .scrubber-container {
     opacity: 1;
 }
 .scrubber {
-    height: 20px;
-    width: 20px;
+    height: 17px;
+    width: 17px;
     background-color: var(--secondary-color);
     border-radius: 20px;
     transition: height .125s, width .125s;
@@ -322,4 +371,82 @@ video::-moz-media-text-track-container {
     100%{
         transform: translateX(-50%) translateY(-50%) scale(.7) rotate(360deg);
     }
+}
+
+/* Episode Modal */
+.episode-modal.hidden {
+    display: none;
+}
+.episode-modal{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 13vh;
+    left: 25px;
+    opacity: 0;
+    transition: opacity 0.5s;
+    width: min(50vw, 500px);
+    height: min(50vh, 500px);
+    overflow-y: auto;
+    gap: 20px;
+}
+.episode-modal.active {
+    opacity: 1;
+}
+
+.episode {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    cursor: pointer;
+    align-items: center;
+}
+
+.episode .episode-number {
+    font-family: AHGB;
+}
+
+.episode .img .hover{
+    opacity: 0;
+    transition: opacity .5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,.2);
+}
+
+.episode:hover .img .hover{
+    opacity: 1;
+}
+
+.episode .img .hover svg{
+    width: 30%;
+    height: auto;
+}
+
+.episode .img .hover svg path {
+    fill: white;
+}
+
+.episode .img {
+    aspect-ratio: 1.7777777;
+    width: 30%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.episode .metadata {
+    width: 60%;
+}
+
+.episode .title {
+    font-family: AHGB;
+}
+.episode .description {
+    font-size: .7em;
+    height: 4.5em;
+    overflow: hidden;
 }
