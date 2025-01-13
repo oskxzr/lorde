@@ -48,7 +48,7 @@
     <div class="content-overlay-wrapper displaynone">
         <div class="content-overlay container" id="content-overlay"></div>
     </div>
-    {% set delay = namespace(counter=0.5) %}
+    {% set delay = namespace(counter=0.4) %}
 
     {% if continue_watching and continue_watching|length > 0 %}
     {# Continue Watching Section #}
@@ -56,20 +56,32 @@
         "WAT THE SIGMA?? pick up where you SKIBIDI left off!",
         continue_watching,
         title_data,
-        0.4,
+        delay.counter,
         continue_watching
     ) }}
+    {% set delay.counter = delay.counter + 0.4 %}
     {% endif %}
 
 
-    {# Hot Right Now Section #}
+    {% for category in categories %}
     {{ content_list(
+        category.category_name,
+        category.titles,
+        title_data,
+        delay.counter,
+        continue_watching
+    ) }}
+    {% set delay.counter = delay.counter + 0.4 %}
+    {% endfor %}
+
+    {# Hot Right Now Section #}
+    <!-- {{ content_list(
         "The hottest shit on Lorde RIGHT NOW!",
         title_data,
         title_data,
         0.8,
         continue_watching
-    ) }}
+    ) }} -->
 
     <script>
         const continueWatching = {{continue_watching|tojson|safe}}
