@@ -125,7 +125,7 @@ class Media:
             'backdrop': self.backdrop,
             'logo': self.logo,
             'rating': self.rating,
-            'type': self.type,
+            'type': self.type
         }
         
         if self.type == 'series':
