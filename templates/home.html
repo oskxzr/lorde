@@ -80,7 +80,9 @@
 <script>
     const title_data = {{title_data|tojson|safe}}
     $(".title-element").on("click", function(){
-        showContentOverlay(title_data[$(this).attr("id")])
+        if (!$(this).hasClass("no-click")) {
+            showContentOverlay(title_data[$(this).attr("id")])
+        }
     })
 </script>
 

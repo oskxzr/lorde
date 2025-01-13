@@ -59,8 +59,32 @@ body {
     opacity: 1;
 }
 
-.title-element:hover .data-holder {
+.title-element .data-holder {
     background-color: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.5s;
+    border-radius: 10px;
+    height: 100%;
+}
+
+.title-element .data-holder.centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.title-element:hover .data-holder {
+    opacity: 1;
+}
+
+.title-element .data-holder svg {
+    width: 50%;
+    height: 50%;
+}
+
+.title-element .data-holder svg path {
+    stroke: white;
 }
 
 .progress-bar {
@@ -88,12 +112,12 @@ body {
     padding: 10px;
 }
 
-.title-element .data-holder {
+/* .title-element .data-holder {
     height: 100%;
     background-color: rgba(0, 0, 0, 0);
     transition: background-color .25s;
     border-radius: 10px;
-}
+} */
 
 .title-element .data-holder .remaining {
     text-align: right;
