@@ -101,6 +101,10 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
                 </div>
 
                 <div class="right">
+                    <div class="speed">
+                        <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+                        <span id="speedValue">1.0x</span>
+                    </div>
                     <button id="captions">${player_icons.subtitles_on}</button>
                     <button id="settings">${player_icons.settings}</button>
                     <button id="fullscreen">${player_icons.fullscreen}</button>
@@ -232,6 +236,19 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
     `);
     // <track label="English" kind="subtitles" srclang="en" src="${watching_data.captions}">
     const captionsTrack = video.textTracks[0];
+
+    // Speed controls
+    const speedSlider = $("#speedSlider")
+    function updateSpeed(){
+        const newSpeed = speedSlider.val()
+        video.playbackRate = newSpeed
+        settings.set("speed", newSpeed)
+        $("#speedValue").text(`${parseFloat(newSpeed).toFixed(2)}x`)
+    }
+
+    speedSlider.on('input change', updateSpeed);
+    speedSlider.val(settings.get("speed"))
+    updateSpeed()
 
     // Captions controls
     function toggleCaptions(enabled = null, hideAction = false) {
