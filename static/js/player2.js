@@ -1,8 +1,20 @@
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
+function formatTime(seconds, duration) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    return minutes + ':' + (secs < 10 ? '0' + secs : secs);
+
+    if (duration >= 3600) {
+        // If the duration is 1 hour or more, use HH:MM:SS format
+        return (hours < 10 ? '0' + hours : hours) + ':' + 
+               (minutes < 10 ? '0' + minutes : minutes) + ':' + 
+               (secs < 10 ? '0' + secs : secs);
+    } else {
+        // If duration is less than 1 hour, use MM:SS format
+        return (minutes < 10 ? '0' + minutes : minutes) + ':' + 
+               (secs < 10 ? '0' + secs : secs);
+    }
 }
+
 
 class Settings {
     constructor(settingsConfig) {
@@ -203,6 +215,8 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
         episodeModal.on("mouseenter", showModal);
         episodeModal.on("mouseleave", hideModal);
         
+    } else {
+        $("#episodes").remove()
     }
 
     // Add the video tracks
@@ -421,7 +435,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             updatePlayProgress()
         }
         const duration = isNaN(video.duration) ? 0 : video.duration
-        playerElement.find("#time-display").text(`${formatTime(video.currentTime)} / ${formatTime(duration)}`)
+        playerElement.find("#time-display").text(`${formatTime(video.currentTime, duration)} / ${formatTime(duration, duration)}`)
     });
 
     function updateBufferProgress(width) {
@@ -445,7 +459,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
 
         playerElement.find(".hover-progress").css({ "width": `${width}%` });
         playerElement.find(".hover-display").css({ "margin-left": `min(max(0px, calc(${width}% - 100px)), calc(100% - 200px))` });
-        playerElement.find("#hover-timestamp").text(formatTime(currentTimestamp));
+        playerElement.find("#hover-timestamp").text(formatTime(currentTimestamp, video.duration));
 
         if (lastMousePosition === width && now - lastUpdateTime < 300) {
             return;
