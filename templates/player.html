@@ -22,12 +22,12 @@
         console.log("HELP")
         $(document).ready(function () {
             initPlayer(
-                {{ tracks| tojson | safe}},
-            {{ title_data| tojson | safe}},
-            {{ timestamp }},
-            {{ watching_data | tojson | safe}},
-            {{ next_episode| tojson | safe}}
-        )
+                {{ tracks | tojson | safe}},
+                {{ title_data | tojson | safe}},
+                {{ timestamp | tojson | safe }},
+                {{ watching_data | tojson | safe}},
+                {{ next_episode | tojson | safe}}
+            )
         })
     </script>
 </body>

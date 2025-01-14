@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, session, abort
+from flask import Blueprint, render_template, request, jsonify, session, abort, Response
 import os
 import requests
 from modules.pages.media import Media
@@ -127,6 +127,28 @@ def pages_index():
     )
     # return render_template("home.html", title_data = title_data)
 
+@pages.route('/captions/<path:caption_path>', methods=['GET'])
+def fetch_captions(caption_path):
+    """
+    Fetch captions from the external server and serve them via this endpoint.
+    Supports flexible paths for TV shows (with season/episode) and movies.
+    """
+    external_url = f"{os.environ["CDN_BASE"]}/captions/{caption_path}"
+    
+    try:
+        response = requests.get(external_url, stream=True)
+
+        if response.status_code == 200:
+            return Response(
+                response.iter_content(chunk_size=1024),
+                status=response.status_code,
+                content_type=response.headers.get('Content-Type')
+            )
+        else:
+            return jsonify({"error": "Failed to fetch captions"}), response.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @pages.route('/error/<int:code>')
 def simulate_error(code):
     abort(code)
@@ -139,59 +161,63 @@ def get_watch_history(user_id, id, season = None, episode = None):
         elif watch_history_data.get(f"{id}_{season}_{episode}"):
             return watch_history_data.get(f"{id}_{season}_{episode}")
 
+# @pages.route("/watch/<path:path>")
+# def pages_watch(path):
+#     split = path.split("/")
+#     title = split[0]
+#     data = titles.find(title.lower())
+#     path = title.upper()
+
+#     season = None
+#     episode = None
+#     subtitles = None
+#     next_episode = None
+#     tracks = []
+
+#     if data and data["type"] == "MOVIE":
+#         subtitles = f"/captions/{path}"
+#     else:
+#         season = split[1].upper()
+#         episode = split[2].upper()
+#         next_episode_data = get_next_episode(path, season, episode)
+#         if next_episode_data:
+#             next_episode = next_episode_data
+#             next_episode["data"] = title_data[path.lower()]["seasons"][str(int(next_episode["season"][1:]))][int(next_episode["episode"][1:])-1]
+#             next_episode["title"] = path
+#         subtitles = f"/captions/{path}/{season}/{episode}"
+
+#     for quality in data["qualities"]:
+#         if data["type"] == "MOVIE":
+#             tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{path}/{quality}/{path}.mp4", 'quality': int(quality[:-1])})
+#         else:
+#             tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{path}/{quality}/{season}/{episode}.mp4", 'quality': int(quality[:-1])})
+
+#     last_watched = get_watch_history(session["user_data"]["_id"], path.lower(), season, episode)
+    
+#     return render_template(
+#         "watch.html", 
+#         tracks=tracks, 
+#         title_data=title_data[path.lower()], 
+#         timestamp=last_watched.get("timestamp") if last_watched else None, 
+#         subtitles=subtitles,
+#         next_episode=next_episode
+#     )
+
 @pages.route("/watch/<path:path>")
 def pages_watch(path):
-    split = path.split("/")
-    title = split[0]
-    data = titles.find(title.lower())
-    path = title.upper()
-
     season = None
     episode = None
-    subtitles = None
-    next_episode = None
-    tracks = []
-
-    if data and data["type"] == "MOVIE":
-        subtitles = f"/static/subtitles/{path}.vtt"
-    else:
-        season = split[1].upper()
-        episode = split[2].upper()
-        next_episode_data = get_next_episode(path, season, episode)
-        if next_episode_data:
-            next_episode = next_episode_data
-            next_episode["data"] = title_data[path.lower()]["seasons"][str(int(next_episode["season"][1:]))][int(next_episode["episode"][1:])-1]
-            next_episode["title"] = path
-        subtitles = f"/static/subtitles/{path}/{season}/{episode}.vtt"
-
-    for quality in data["qualities"]:
-        if data["type"] == "MOVIE":
-            tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{path}/{quality}/{path}.mp4", 'quality': int(quality[:-1])})
-        else:
-            tracks.append({"src": f"{os.environ["CDN_BASE"]}/video/{path}/{quality}/{season}/{episode}.mp4", 'quality': int(quality[:-1])})
-
-    last_watched = get_watch_history(session["user_data"]["_id"], path.lower(), season, episode)
     
-    return render_template(
-        "watch.html", 
-        tracks=tracks, 
-        title_data=title_data[path.lower()], 
-        timestamp=last_watched.get("timestamp") if last_watched else None, 
-        subtitles=subtitles,
-        next_episode=next_episode
-    )
-
-@pages.route("/playertesting")
-def pages_playertesting():
-    season = "S01"
-    episode = "E01"
-    title = "breakingbad".upper()
+    split = path.split("/")
+    title = split[0].upper()
 
     data = titles.find(title.lower())
     next_episode = None
     tracks = []
 
     if data and data["type"] == "SERIES":
+        season = split[1].upper()
+        episode = split[2].upper()
         next_episode_data = get_next_episode(title, season, episode)
         if next_episode_data:
             next_episode = next_episode_data
@@ -208,16 +234,17 @@ def pages_playertesting():
     if season:
         watching_data["season"] = season
         watching_data["episode"] = episode
-        watching_data["captions"] = f"{os.environ["CDN_BASE"]}/captions/{title.upper()}/{season}/{episode}"
+        watching_data["captions"] = f"/captions/{title.upper()}/{season}/{episode}"
         watching_data["keyframes"] = f"{os.environ["CDN_BASE"]}/keyframes/{title.upper()}/{season}/{episode}"
     else:
-        watching_data["captions"] = f"{os.environ["CDN_BASE"]}/captions/{title.upper()}"
+        watching_data["captions"] = f"/captions/{title.upper()}"
         watching_data["keyframes"] = f"{os.environ["CDN_BASE"]}/keyframes/{title.upper()}"
 
     keyframe_data = requests.get(watching_data["keyframes"])
     watching_data["keyframe_data"] = keyframe_data.json()
 
     last_watched = get_watch_history(session["user_data"]["_id"], title.lower(), season, episode)
+    print(tracks, title_data[title.lower()], last_watched.get("timestamp") if last_watched else None, next_episode, watching_data)
     return render_template(
         "player.html", 
         tracks = tracks, 

@@ -116,8 +116,6 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
         speed: 1,
     });
 
-    const captionsUrl = "/static/subtitles/BREAKINGBAD/S01/E01.vtt"
-
     function showAction(icon) {
         const actionElement = $(`<div class='action'>${player_icons[icon]}</div>`)
         playerElement.append(actionElement)
@@ -165,43 +163,42 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
         }
         playerElement.append(episodeModal)
 
-        let hovertimeout
 
-        $("#episodes").on("mouseenter",function(){
-            clearTimeout(hovertimeout)
-            episodeModal.removeClass("hidden")
-            setTimeout(() => {
-                episodeModal.addClass("active")
-            }, 100);
-        })
+        let hovertimeout;
 
-        $("#episodes").on("mouseleave", function(){
-            clearTimeout(hovertimeout)
-            hovertimeout = setTimeout(() => {
-                episodeModal.removeClass("active")
+        // Function to show the modal
+        function showModal() {
+            clearTimeout(hovertimeout);
+            if (!episodeModal.hasClass("active")) {
+                episodeModal.removeClass("hidden");
                 setTimeout(() => {
-                    episodeModal.addClass("hidden")
-                }, 500);
-            }, 500);
-        })
-
-        episodeModal.on("mouseenter",function(){
-            clearTimeout(hovertimeout)
-            episodeModal.removeClass("hidden")
-            setTimeout(() => {
-                episodeModal.addClass("active")
-            }, 100);
-        })
-
-        episodeModal.on("mouseleave", function(){
-            clearTimeout(hovertimeout)
+                    episodeModal.addClass("active");
+                }, 100);
+            }
+        }
+        
+        // Function to hide the modal
+        function hideModal() {
+            clearTimeout(hovertimeout);
             hovertimeout = setTimeout(() => {
-                episodeModal.removeClass("active")
-                setTimeout(() => {
-                    episodeModal.addClass("hidden")
-                }, 500);
+                if (episodeModal.hasClass("active")) {
+                    episodeModal.removeClass("active");
+                    // Delay adding the "hidden" class only after confirming no re-hover
+                    hovertimeout = setTimeout(() => {
+                        if (!episodeModal.hasClass("active")) {
+                            episodeModal.addClass("hidden");
+                        }
+                    }, 500);
+                }
             }, 500);
-        })
+        }
+        
+        // Attach hover event handlers
+        $("#episodes").on("mouseenter", showModal);
+        $("#episodes").on("mouseleave", hideModal);
+        episodeModal.on("mouseenter", showModal);
+        episodeModal.on("mouseleave", hideModal);
+        
     }
 
     // Add the video tracks
@@ -226,6 +223,9 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
     for (let track of tracks) {
         tracks_elements += `<source src='${track.src}' type="video/mp4">`
     }
+
+    const captionsUrl = watching_data.captions
+    console.log(captionsUrl)
     videoElement.append(`
         ${tracks_elements}
         <track label="English" kind="subtitles" srclang="en" src="${captionsUrl}">
@@ -260,6 +260,39 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
 
     playerElement.find("#captions").on("click", function () { toggleCaptions() })
     Mousetrap.bind('c', function () { toggleCaptions() })
+    
+    // Timestamp and watch history
+    function updateWatchHistory(){
+        $.ajax({
+            url: '/watchhistory',
+            method: 'POST',
+            data: {
+                url: window.location.pathname,
+                timestamp: video.currentTime
+            }
+        });
+    }
+    
+    let lastUpdate = 0;
+    const updateInterval = 5000;
+    videoElement.on('timeupdate', () => {
+        const now = Date.now();
+        if (!video.loading && now - lastUpdate >= updateInterval) {
+            lastUpdate = now;
+            updateWatchHistory()
+        }
+    });
+
+    let hasPlayerInit = false
+    videoElement.bind("canplay", function(){
+        if (hasPlayerInit) {return}
+        hasPlayerInit = true
+
+        if (timestamp && video.duration - timestamp > 120) {
+            video.currentTime = timestamp
+        }
+        video.play()
+    })
 
     // Fullscreen
     function toggleFullscreen(e) {
@@ -350,8 +383,8 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             $("#play").html(player_icons.play)
             showAction("pause")
         }
+        updateWatchHistory()
     }
-    video.play()
     $("#play").html(player_icons.pause)
     videoElement.on("click", togglePlaying)
     playerElement.find("#play").on("click", togglePlaying)
@@ -531,6 +564,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             video.play(); // Optional: resume playback
             $(document).off('mousemove.scrubber');
             $(document).off('mouseup.scrubber');
+            updateWatchHistory()
         }
     }
 

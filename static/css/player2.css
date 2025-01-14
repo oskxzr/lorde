@@ -381,7 +381,7 @@ video::-moz-media-text-track-container {
     display: flex;
     flex-direction: column;
     position: absolute;
-    bottom: 13vh;
+    bottom: 85px;
     left: 25px;
     opacity: 0;
     transition: opacity 0.5s;
