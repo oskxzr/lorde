@@ -244,7 +244,6 @@ def pages_watch(path):
     watching_data["keyframe_data"] = keyframe_data.json()
 
     last_watched = get_watch_history(session["user_data"]["_id"], title.lower(), season, episode)
-    print(tracks, title_data[title.lower()], last_watched.get("timestamp") if last_watched else None, next_episode, watching_data)
     return render_template(
         "player.html", 
         tracks = tracks, 

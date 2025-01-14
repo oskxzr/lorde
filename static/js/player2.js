@@ -243,7 +243,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
         const newSpeed = speedSlider.val()
         video.playbackRate = newSpeed
         settings.set("speed", newSpeed)
-        $("#speedValue").text(`${parseFloat(newSpeed).toFixed(2)}x`)
+        $("#speedValue").text(`${parseFloat(newSpeed).toFixed(2)}x speed`)
     }
 
     speedSlider.on('input change', updateSpeed);

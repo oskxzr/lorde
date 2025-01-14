@@ -149,6 +149,14 @@ button svg {
     color: rgba(255, 255, 255, 0.8)
 }
 
+.speed {
+    opacity: 0.5;
+    transition: opacity .25s;
+}
+.speed:hover {
+    opacity: 0.8;
+}
+
 /* Progress bar */
 .progress-bar {
     width: 100%;
