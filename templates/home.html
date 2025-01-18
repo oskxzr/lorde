@@ -75,13 +75,13 @@
     {% endfor %}
 
     {# Hot Right Now Section #}
-    <!-- {{ content_list(
+    {{ content_list(
         "The hottest shit on Lorde RIGHT NOW!",
         title_data,
         title_data,
         0.8,
         continue_watching
-    ) }} -->
+    ) }}
 
     <script>
         const continueWatching = {{continue_watching|tojson|safe}}
