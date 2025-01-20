@@ -47,6 +47,7 @@
                 <p class="remaining">{{(data["metadata"]["time"]["m"] - (continue_watching.timestamp|float/60)) | round(0) | int }}m remaining</p>
                 {% endif %}
             </div>
+            </div>
             <div class="progress-bar">
 
                 {% if data["metadata"]["type"] == "series" %}
@@ -59,8 +60,9 @@
 
                 <div class="progress" style="width: {{ (progress*100)+10 }}%"></div>
             </div>
+        {% else %}
+        </div>
         {% endif %}
-    </div>
 </div>
 </div>
 {% endmacro %}
