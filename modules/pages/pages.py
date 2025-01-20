@@ -117,13 +117,19 @@ def pages_index():
         user_watch_history = watch_history.find(session.get("user_data")["_id"]) or {}
     if user_watch_history != {} and "_id" in user_watch_history:
         del user_watch_history["_id"]
+    categories_cursor = categories.find_many({})
+    all_categories = {}
+    for category in categories_cursor:
+        id = category["_id"]
+        del category["_id"]
+        all_categories[id] = category
     return render_template(
         "home.html", 
         title_data = title_data, 
         watch_history = user_watch_history, 
         continue_watching = create_continue_watching(user_watch_history), 
         logged_in = session.get("session_key") != None,
-        categories = [v for v in categories.find_many({})]
+        categories = [all_categories[title] for title in all_categories["order"]["order"]]
     )
     # return render_template("home.html", title_data = title_data)
 
