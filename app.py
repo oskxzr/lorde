@@ -21,6 +21,9 @@ app.register_blueprint(auth, url_prefix="/auth")
 from modules.pages.pages import pages
 app.register_blueprint(pages)
 
+from modules.sync.sync import sync
+app.register_blueprint(sync, url_prefix="/sync")
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=9999, debug=True)

@@ -9,7 +9,6 @@ sessions.collection.create_index(
     expireAfterSeconds=3 * 24 * 60 * 60  # 3 days in seconds
 )
 users = database.get_collection("web", "users", id_generation_function=id_gen)
-user_data = database.get_collection("web", "user_data")
 watch_history = database.get_collection("web", "watch_history")
 
 titles = database.get_collection("static", "titles")

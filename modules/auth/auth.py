@@ -5,7 +5,6 @@ import time
 from modules.pages.pages import title_data
 sessions = dbutils.sessions
 users = dbutils.users
-user_data = dbutils.user_data
 
 auth = Blueprint("auth", __name__)
 
@@ -80,13 +79,7 @@ def auth_before_request():
     # Update user data for authenticated requests
     if user:
         try:
-            ud = user_data.find(user["_id"])
-            if not ud:
-                ud = {
-                    "_id": user["_id"],
-                    "watch_history": {}
-                }
-                user_data.set(ud)
-            session["user_data"] = ud
+            del user["password"]
+            session["user_data"] = user
         except Exception:
             pass
