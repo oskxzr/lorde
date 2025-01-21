@@ -57,8 +57,6 @@ class Settings {
 }
 
 function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) {
-    console.log(tracks, title_data, timestamp, watching_data, next_episode)
-    console.log("///////////////")
 
     // Initialise the keyframes data
     let keyframesEnabled = false
@@ -88,7 +86,7 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             <div class='loading'>${player_icons.loading} ${player_icons.loading}</div>
             <video id="video-element" preload="metadata"></video>
             <div class="player-top">
-                <div class="back-arrow">${player_icons.back_arrow}</div>
+                <div class="back-arrow alt" data-alt="Back to Homepage">${player_icons.back_arrow}</div>
                 <div class="title-information"><p class="title"></p><p class="subtitle"></p></div>
             </div>
 
@@ -107,8 +105,8 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
                 </div>
                 
                 <div class="left">
-                    <button id="play">${player_icons.play}</button>
-                    <button id="episodes">${player_icons.episodes}</button>
+                    <button id="play" class="alt" data-alt="Play/Pause">${player_icons.play}</button>
+                    <button id="episodes" class="alt" data-alt="Episodes">${player_icons.episodes}</button>
                     <span id="time-display">00:00 / 00:00</span>
                 </div>
 
@@ -117,9 +115,9 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
                         <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
                         <span id="speedValue">1.0x</span>
                     </div>
-                    <button id="captions">${player_icons.subtitles_on}</button>
-                    <button id="settings">${player_icons.settings}</button>
-                    <button id="fullscreen">${player_icons.fullscreen}</button>
+                    <button id="captions" class="alt" data-alt="Captions">${player_icons.subtitles_on}</button>
+                    <button id="settings" class="alt" data-alt="Settings">${player_icons.settings}</button>
+                    <button id="fullscreen" class="alt" data-alt="Fullscreen">${player_icons.fullscreen}</button>
                 </div>
 
             </div>
@@ -162,7 +160,6 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
             const episode = seasonData[episodeNumber]
             episodeNumber = parseInt(episodeNumber)
             episodeNumber += 1
-            console.log(episode)
             const episodeElement = $(`<div class='episode'>
                 <p class='episode-number'>#${episodeNumber}</p>
                 <div class='img' style='--background-image: url("${episode.image}")'><div class='hover'>${player_icons.play}</div></div>
@@ -243,7 +240,6 @@ function initPlayer(tracks, title_data, timestamp, watching_data, next_episode) 
     }
 
     const captionsUrl = watching_data.captions
-    console.log(captionsUrl)
     videoElement.append(`
         ${tracks_elements}
         <track label="English" kind="subtitles" srclang="en" src="${captionsUrl}">
